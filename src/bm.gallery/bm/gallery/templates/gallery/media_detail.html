@@ -1,0 +1,173 @@
+
+{% extends "gallery/base.html" %}
+{% load composit %}
+{% load conmodnav %}
+{% load tagging_tags %}
+{% load qsify %}
+
+{% block extra-head %}
+<script type="text/javascript" src="/static/scripts/composit.js"></script>
+{% endblock %}
+
+
+{% block con_mod_nav %}{% con_mod_nav resource %}{% endblock %}
+{% block content %}
+
+<!-- +++++ IN-PAGE NAV AND PAGE HEADER STARTS +++++ -->	
+<div id="page-title-nav">
+  {% if show_set_context %}
+  <div class="thumbnail-nav">
+    <div class="thumbnail-nav-text">
+      <img class="end-left"src="{{ MEDIA_URL }}thumbnail-bg-left.gif"
+           width="59" height="29" />
+      {% if prevurl %}
+      <a href="{% qsify prevurl %}#pastheader"
+         title="Go to previous item">
+        <span class="arrow"><img src="{{ MEDIA_URL }}nav-prev-arrow.gif" /></span>
+        <a class="listingPrevious" href="{% qsify prevurl %}#pastheader"
+         title="Go to previous item">Previous
+      </a>
+      {% endif %}
+
+      <span class="listingNumber">{{ index }} of {{ count }}</span>
+
+      <a href="{% qsify /browse false browse_page %}#pastheader">
+        <span class="arrow"><img src="{{ MEDIA_URL }}nav-up-arrow.gif" /></span></a>
+       <a href="{% qsify /browse false browse_page %}#pastheader"
+         class="listingThumbnails"> Up to Thumbnails
+      </a>
+
+      {% if nexturl %}
+      <a class="listingNext" title="Go to next item"
+         href="{% qsify nexturl %}#pastheader">
+        Next</a>
+        <a title="Go to next item"
+         href="{% qsify nexturl %}#pastheader"><span class="arrow"><img src="{{ MEDIA_URL }}nav-next-arrow.gif" /></span>
+      </a>
+      {% endif %}
+      <img class="end-right" src="{{ MEDIA_URL }}thumbnail-bg-right.gif"
+           width="16" height="29" />
+    </div>
+  </div>
+</div>
+<!-- +++++ IN-PAGE NAV AND PAGE HEADER ENDS +++++ -->	
+{% endif %}
+
+{% block media_content %}
+<!-- +++++ SINGLE ITEM STARTS +++++ -->
+<div id="single-item">
+  <div id="image_box">
+    <!-- +++++ MEDIA ITEM DISPLAY  +++++ -->
+    {% if nexturl %}<a href="{% qsify nexturl %}#pastheader">{% endif %}{% block media_display %}{% endblock %}{% if nexturl %}</a>{% endif %}
+    <!-- +++++ END MEDIA ITEM DISPLAY  +++++ -->
+  </div>
+
+  <div id="metadata_box">
+    <script type="text/javascript" src="http://www.burningman.com/sections/all/javascript.js">
+    </script>
+
+    <p class="metadata_value_subhead">{{ resource.title }}</p>
+
+    <p class="metadata_key">
+      By: <span class="metadata_value">
+        <a href="{% url bm.gallery.views.browse %}?owner={{ resource.owner.username }}">{{ resource.owner.get_full_name }}</a>
+      </span><br />
+
+      {% if resource.owner.get_profile.has_valid_email %}
+      {% if perms.gallery.can_review %}
+      <a href="mailto:{{ resource.owner.email }}">email</a>
+      {% else %}
+      <a href="{{ resource.owner.email|composit_url }}"
+         onclick="{{ resource.owner.email|composit_onclick }}"
+         target="_self">email</a>
+      {% endif %}
+       the contributor<br />
+      {% endif %}
+
+      {% with resource.owner.get_profile.url as url %}
+      {% if url %}
+      <span class="metadata_value" condition="view/creator/home">
+	<a href="{{ url }}">{{ url }}</a>
+      </span><br />
+      {% endif %}
+      {% endwith %}
+
+      {% if resource.notes %}
+      Description: <span class="metadata_value">{{ resource.notes }}</span>
+      <br />
+      {% endif %}
+
+      <br />
+      Year: <span class="metadata_value">{{ resource.year }}</span><br />
+
+      Category: <span class="metadata_value">{% for cat in resource.categories.all %}{{ cat.title }}{% if not forloop.last %}, {% endif%}{% endfor %} </span><br />
+
+      {% with resource.tags as tags %}
+      {% if tags %}
+      Keywords: <span class="metadata_value">
+        {% for tag in tags %}
+        <a href="{% url bm.gallery.views.browse %}?tag={{ tag }}"><span>{{ tag }}</span></a>
+        {% endfor %}
+      </span>
+      <br />
+      {% endif %}
+      {% endwith %}
+
+      {% if perms.gallery.can_see_fullsize %}
+      View this resource at
+      <span class="metadata_value">
+        <a href="{% url bm.gallery.views.image_full mediatype=resource.mediadir username=resource.owner.username slug=resource.slug %}{% if query_string %}?{{ query_string }}{% endif %}">full-size</a>.
+      </span>
+      {% endif %}
+
+      {% if can_approve %}
+      <span class="metadata_key">
+        <form method="post" action="{% url bm.gallery.views.media_moderate mediatype=mediatype_plural username=resource.owner.username slug=resource.slug %}">
+          <input type="submit" name="new_status" value="Approve" /> this resource
+        </form>
+      </span>
+      {% endif %}
+
+      {% if can_reject %}
+      <span class="metadata_key">
+        <form method="post" action="{% url bm.gallery.views.media_moderate mediatype=mediatype_plural username=resource.owner.username slug=resource.slug %}">
+          <input type="submit" name="new_status" value="Decline" /> this resource
+        </form>
+      </span>
+      {% endif %}
+
+      {% if can_submit %}
+      <span class="metadata_key">
+        <form method="post" action="{% url bm.gallery.views.media_submit mediatype=mediatype_plural username=resource.owner.username slug=resource.slug %}">
+          <input type="submit" name="new_status" value="Submit" /> this resource
+        </form>
+      </span>
+      {% endif %}
+
+      {% if can_retract %}
+      <span class="metadata_key">
+        <form method="post" action="{% url bm.gallery.views.media_submit mediatype=mediatype_plural username=resource.owner.username slug=resource.slug %}">
+          <input type="submit" name="new_status" value="Retract" /> this resource
+        </form>
+      </span>
+      {% endif %}
+
+      {% if resource.status == 'approved' and perms.gallery.can_review %}
+      {% if resource.is_featured %}
+      <h5>Featured!</h5>
+      {% else %}
+      <form method="post" action="{% url bm.gallery.views.media_feature mediatype=mediatype_plural username=resource.owner.username slug=resource.slug %}">
+        <input type="submit" name="feature" value="Feature" /> this resource
+      </form>
+      {% endif %}
+      {% endif %}
+
+      {% block type_actions %}{% endblock %}
+
+    </p>
+  </div>
+</div>
+<!-- +++++ SINGLE ITEM ENDS +++++ -->
+{% endblock %}
+
+{% endblock %}
