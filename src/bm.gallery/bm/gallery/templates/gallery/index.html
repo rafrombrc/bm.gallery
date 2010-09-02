@@ -1,0 +1,72 @@
+{% extends "gallery/base.html" %}
+
+{% block content %}
+
+<div>
+  <div id="homepage-left">
+    {% with "/browse?mediatype=photo" as browse_url %}
+    <div class="promo-item">
+      <div class="image-promo"><a href="{{ browse_url }}"><img src="{{ MEDIA_URL}}/home-photos-intro.jpg" width="200" height="134" alt="Browse Photos" title="Browse Photos" class="align-left" /></a></div>
+
+      <div class="text-promo"><p><img src="/static/home-photo-title.gif" width="105" height="48" alt="Photographs" /><br />
+   	  Thousands of beautiful images submitted by participant photographers who document Burning Man and related events throughout the years.</p>
+	<p><a href="{{ browse_url }}">Browse Photos</a></p></div>
+    </div>
+    {% endwith %}
+    
+    {% with "/browse?mediatype=artifact" as browse_url %}
+    <div class="promo-item-odd">
+      <div class="image-promo"><a href="{{ browse_url }}"><img src="{{ MEDIA_URL }}home-arti-intro.jpg" width="200" height="134" alt="Browse Playa Artifacts" title="Browse Playa Artifacts" class="align-left" /></a></div>
+      <div class="text-promo"><p><img src="{{ MEDIA_URL }}home-arti-title.gif" width="128" height="48" alt="Playa Artifacts" /><br />
+   	  A collection of hundreds of gifts, objects, and artifacts created by participants as part of the gift culture of Burning Man. </p>
+
+   	<p><a href="{{ browse_url }}">Browse Playa Artifacts</a></p><br /></div>
+    </div>
+    {% endwith %}
+
+   
+    {% with "/browse?mediatype=video" as browse_url %}
+    <div class="promo-item">
+      <div class="image-promo"><a href="{{ browse_url }}"><img src="{{ MEDIA_URL }}home-video-intro.jpg" width="200" height="134" alt="Browse Video" title="Browse Video" class="align-left" /></a></div>
+      <div class="text-promo"><p><img src="{{ MEDIA_URL }}home-video-title.gif" width="51" height="48" alt="Video" /><br />
+   	  Visit our curated collection of Burning Man videos. See the man burn from previous years from our webcasting booth.</p>
+   	<p><a href="{{ browse_url }}">Browse Video</a></p></div>
+    </div>
+    {% endwith %}
+
+
+  </div>
+  <div id="homepage-right">
+    {% comment %}
+    {% if featured %}
+    {% with featured.get_thumbnail_image as thumbnail %}
+    <div class="iotd">
+      <img src="{{ MEDIA_URL }}home-featured-title.gif" width="135" height="48" alt="Featured Image" /><br />
+      <div class="thumbnail-image">
+        <a href="{{ featured.get_absolute_url }}#pastheader">
+   	  <img src="{{ thumbnail.url }}" alt="{{ featured.title }}"
+               title="{{ featured.title }}" height="128" width="96" />
+        </a>
+      </div> <!-- end thumbnail-image -->
+    </div> <!-- end iotd -->
+    {% endwith %}
+    {% endif %}
+        {% endcomment %}
+
+    <div class="about-info">
+      <p><img src="{{ MEDIA_URL }}home-about-title.gif" width="167" height="48" alt="About the Collection" /><br />
+   	This gallery is a museum that showcase the high quality of art and diversity of expression demonstrated by Burning Man participants.</p>
+      <p>Archiving, photography and documentation are important forms of participation at Burning Man. It is essential that there is a collaborative relationship between the photographer and the subjects or artists.</p>
+      <p><strong>For More Information</strong><br />
+	Check out <a href="http://www.burningman.com/press/photo_guide.html" target="_blank">Guidelines for Photography and Media</a> at Burning Man.</p>
+
+      <p><strong>Getting Started</strong><br />
+	Please view the <a href="{% url bm.gallery.views.faq %}">FAQ</a> to learn about selection criteria and how you can contribute images and artifacts.</p>
+      
+      
+     <!--{% if random_page %}<p><a href="{% url bm.gallery.views.browse %}?mediatype=photo&page={{ random_page }}">link to random browse set</a></p>{% endif %} -->
+    </div>
+  </div>
+</div>
+
+{% endblock %}

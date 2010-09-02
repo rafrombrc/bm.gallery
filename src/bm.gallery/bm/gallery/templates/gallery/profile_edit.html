@@ -1,0 +1,57 @@
+{% extends "gallery/base.html" %}
+{% load composit %}
+
+{% block extra-head %}
+<script type="text/javascript" src="/static/scripts/jquery-1.4.2.min.js"></script>
+<script type="text/javascript" src="/static/scripts/iefixes.js"></script>
+<script type="text/javascript">
+  BrowserDetect.init();
+  if ((BrowserDetect.OS == 'Windows')
+    && (BrowserDetect.browser == 'Explorer')
+    && (BrowserDetect.version <= '7')) {
+      window.location = '/upgrade_ie';
+  };
+</script>
+{% endblock %}
+
+{% block content %}
+
+  {% if password_link %}
+  <p>
+    <a href="{% url bm.gallery.views.password_change %}">Change password</a>
+  </p>
+  {% endif %}
+
+  <form method="POST" enctype="multipart/form-data"
+        id="profile_edit"
+        class="profile_edit_form">
+    {% csrf_token %}
+    <div id="viewspace">
+      <div id="actionsView">
+        <p>
+        {% for form in forms %}
+        {% for field in form.visible_fields %}
+        {% if forloop.first %}
+        {% for hidden in form.hidden_fields %}
+        {{ hidden }}
+        {% endfor %}
+        {% endif %}
+          <p>
+            {{ field.errors }}{% if field.name == 'email' and emailerror %}<ul class="errorlist"><li>{{ emailerror }}</li></ul>{% endif %}
+            {{ field.label_tag }}{% if field.field.required or field.name == 'email' %}*{% endif %}: {{ field }}
+          </p>
+        {% endfor %}
+        {% endfor %}
+        </p>
+        <div class="visualClear"><!-- --></div>
+        <br />
+        <span class="actionButtons">
+          <input type="submit" id="save" name="save" value="Save" class="context" />
+          <input type="submit" id="cancel" name="cancel" value="Cancel" class="context" />
+        </span>
+      </div>
+
+    </div>
+  </form>
+
+{% endblock %}

@@ -1,0 +1,75 @@
+{% extends "gallery/base.html" %}
+{% load composit %}
+{% load conmodnav %}
+
+{% block extra-head %}
+<script type="text/javascript" src="/static/scripts/jquery-1.4.2.min.js"></script>
+<script type="text/javascript">
+  $(document).ready(function() {
+      $('#upload_field').hide();
+
+      $('#replace').click(function() {
+          if (this.text == 'Replace') {
+              this.innerHTML = "Don't replace";
+              $('#upload_field').show(100);
+          } else {
+              this.innerHTML = "Replace";
+              $('#upload_field').hide(100);
+          };
+      });
+  });
+</script>
+{% endblock %}
+
+{% block con_mod_nav %}{% con_mod_nav image %}{% endblock %}
+
+{% block content %}
+
+  {% if batch_length %}
+  <p><em>Confirming Batch Upload:</em> {{ num_remaining }} (of {{ batch_length }}) remaining
+  {% endif %}
+
+  <form method="POST" enctype="multipart/form-data"
+        id="zc.page.browser_form"
+        class="kssattr-formname-photo_edit_form"
+        action="{% url bm.gallery.views.media_edit mediatype=image.mediadir username=image.owner.username slug=image.slug  %}">
+    <div id="viewspace">
+      <div id="actionsView">
+
+        {% for field in form.visible_fields %}
+        <p>
+          {% if forloop.first %}
+            {% if ids %}
+            <input type="hidden" name="ids" value="{{ ids }}" />
+            {% endif %}
+            {% if batch_length %}
+            <input type="hidden" name="batch_length" value="{{ batch_length }}" />
+            {% endif %}
+            {% for hidden in form.hidden_fields %}
+            {{ hidden }}
+            {% endfor %}
+          {% endif %}
+          {{ field.errors }}
+
+          {% if field.name == 'image' or field.name == 'filefield' and image.get_thumbnail_image %}
+            {{ field.label_tag }}: <img src="{{ image.get_thumbnail_image.url }}" />
+            <a id="replace">Replace</a> <br />
+            <span id="upload_field">{{ field }}</span>
+          {% else %}
+            {{ field.label_tag }}{% if field.field.required %}*{% endif %}: {{ field }}
+          {% endif %}
+          {% endfor %}
+        </p>
+
+        <span class="actionButtons">
+          <input type="submit" id="save" name="save" value="Save" class="context" />
+          {% if can_cancel %}
+          <input type="submit" id="cancel" name="cancel" value="Cancel" class="context" />
+          {% endif %}
+        </span>
+      </div>
+
+    </div>
+  </form>
+
+{% endblock %}

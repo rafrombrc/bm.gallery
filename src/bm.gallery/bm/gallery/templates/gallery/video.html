@@ -1,0 +1,24 @@
+
+{% extends "gallery/media_detail.html" %}
+{% load composit %}
+{% load flowplayer_tags %}
+
+{% block extra-head %}
+<script type="text/javascript" src="{{ MEDIA_URL }}flowplayer/example/flowplayer-3.2.0.min.js">
+</script>
+{% endblock %}
+
+{% block media_display %}
+{% with resource as video %}
+
+{% if video.flvfile %}
+<div id="image_preview"
+     style="height: {{ video.flvheight }}px; width: {{ video.flvwidth }}px; overflow: hidden;">
+  {% flowplayer video.flvfile.url %}
+</div>
+{% else %}
+<p>NOT ENCODED</p>
+{% endif %}
+
+{% endwith %}
+{% endblock %}

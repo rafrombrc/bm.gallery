@@ -1,0 +1,39 @@
+{% extends "gallery/base.html" %}
+
+{% block content %}
+
+<!-- +++++ CONTRIBUTOR NAV STARTS +++++ -->
+<h1>Browse Contributors</h1>
+<div id="cont-alpha-nav">
+  <ul>
+    {% url bm.gallery.views.contributors as contribs_url %}
+    <li><a href="{{ contribs_url }}?letter=#">#</a></li>
+    {% for letter in letters %}
+    <li>
+      {% if chosen_letter == letter %}<span class="current-alpha">{% endif %}
+        <a href="{{ contribs_url }}?letter={{ letter}}">{{ letter }}</a>
+      {% if chosen_letter == letter %}</span>{% endif %}
+    </li> 
+    {% endfor %}
+  </ul>
+</div>
+<!-- +++++ CONTRIBUTOR NAV ENDS +++++ -->
+<!-- +++++ CONTRIBUTOR AUTOFLOW COLUMNS START +++++ -->
+<div id="contrib-columns">
+  <div id="big-letter">{{ chosen_letter }}</div>
+  {% for contribs in contrib_lists %}
+  <div id="{% cycle 'cont-column-one' 'cont-column-two' %}">
+    <p>
+      {% for contrib in contribs %}
+      <a href="{% url bm.gallery.views.browse %}?owner={{ contrib.username }}">{{ contrib.get_full_name }}</a><br />
+      {% endfor %}
+    </p>
+  </div>
+  {% endfor %}
+</div>
+
+<div id="cont-clear">&nbsp;</div>
+<!-- +++++ CONTRIBUTOR AUTOFLOW COLUMNS END +++++ -->
+</div>
+
+{% endblock %}

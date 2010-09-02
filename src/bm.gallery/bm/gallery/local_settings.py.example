@@ -1,0 +1,47 @@
+from django_auth_ldap.config import GroupOfUniqueNamesType
+from django_auth_ldap.config import LDAPSearch
+import ldap
+
+DEBUG = True
+TEMPLATE_DEBUG = True
+
+TIME_ZONE = 'America/Los_Angeles'
+LANGUAGE_CODE = 'en-us'
+
+ADMINS = (
+    ('Ad Ministrator', 'admin@example.com'),
+    )
+
+MANAGERS = ADMINS
+
+EMAIL_HOST = 'localhost'
+
+DATABASE_NAME = 'bmgallery'
+DATABASE_USER = 'bmgallery'
+DATABASE_PASSWORD = 'somethingsupersecret'
+DATABASE_HOST = 'localhost'
+DATABASE_PORT = ''
+
+# Make this unique, and don't share it with anybody.
+SECRET_KEY = 'a85h]\09=al0tqiem[209u??;\\\_0aslfl;w180r;23#93&0r'
+
+AUTH_LDAP_SERVER_URI = 'ldaps://ldapserver.example.com:636'
+AUTH_LDAP_BIND_DN = 'cn=admin,dc=example,dc=com'
+AUTH_LDAP_BIND_PASSWORD = 'ldapsecretpassword'
+AUTH_LDAP_USER_DN_TEMPLATE = 'uid=%(user)s,ou=galleries,dc=example,dc=com'
+AUTH_LDAP_MIRROR_GROUPS = True
+
+AUTH_LDAP_GROUP_SEARCH = LDAPSearch('ou=groups,dc=example,dc=com',
+                                    ldap.SCOPE_SUBTREE,
+                                    '(objectClass=groupOfUniqueNames)')
+
+AUTH_LDAP_GROUP_TYPE = GroupOfUniqueNamesType(name_attr='cn')
+
+AUTH_LDAP_GLOBAL_OPTIONS = {
+    ldap.OPT_X_TLS_ALLOW: True,
+    }
+
+AUTH_LDAP_USER_ATTR_MAP = {
+    "first_name": "givenName",
+    "last_name": "sn",
+    "email": "mail"}

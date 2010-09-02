@@ -1,0 +1,38 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>Burning Man Galleries</title>
+    <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}css/style.css" />
+    <link rel="shortcut icon" href="" type="image/x-icon" />
+    <!--    <script type="text/javascript" src="http://use.typekit.com/out0isl.js"></script>
+            <script type="text/javascript">try{Typekit.load();}catch(e){}</script> -->
+
+    {% block extra-head %}{% endblock %}
+  </head>
+
+  <body>
+    <div id="wrap">
+      <div id="header">
+        <div id="page-header">
+          <div id="logo"><a href="http://www.burningman.com/"><img src="{{ MEDIA_URL }}bman-logo.gif" /></a></div>
+        </div> <!-- end page-header -->
+      </div> <!-- end header -->
+
+{% block content %}
+<!-- +++++ GENERIC TEXT PAGE STARTS +++++ -->
+<h1>BUMMER!</h1>
+
+<h3>300: Bad Request</h3>
+
+<p>Oh my.  Something went wrong.  I don't quite understand what you're
+asking for.  And that's making me a little bit uncomfortable.  Please
+respect my boundaries.  Thanks!</p>
+<!-- +++++ GENERIC TEXT PAGE ENDS +++++ -->
+
+{% endblock %}
+
+    </div>
+  </body>
+</html>

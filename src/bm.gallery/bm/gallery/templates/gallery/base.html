@@ -1,0 +1,134 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>Burning Man Galleries</title>
+    <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}css/style.css" />
+    <link rel="shortcut icon" href="{{ MEDIA_URL }}favicon.ico" type="image/x-icon" />
+    <!--    <script type="text/javascript" src="http://use.typekit.com/out0isl.js"></script>
+            <script type="text/javascript">try{Typekit.load();}catch(e){}</script> -->
+
+<!--[if IE 7]>
+  <link rel="stylesheet" href="/static/css/IE7.css" type="text/css" media="screen">
+<![endif]-->
+    {% block extra-head %}{% endblock %}
+  </head>
+
+  <body>
+    <div id="wrap">
+      <div id="header">
+        <div id="page-header">
+          <div id="logo"><a href="http://www.burningman.com/"><img src="{{ MEDIA_URL }}bman-logo.gif" /></a></div>
+          <div id="account-info">
+            {% if user.is_authenticated %}
+            Hi <a href="{% url bm.gallery.views.profile_edit username=user.username %}">{% with user.get_full_name as fullname %}{% if fullname %}{{ fullname }}{% else %}{{ user.username }}{% endif %}{% endwith %}</a>!<br />
+            <a href="{% url django.contrib.auth.views.logout %}">Logout</a>
+            {% else %}
+            {% url django.contrib.auth.views.logout as logout_path %}
+            {% url django.contrib.auth.views.password_reset_complete as password_reset_complete_path %}
+            {% with request.get_full_path as request_path %}
+            <a href="{% url django.contrib.auth.views.login %}?next={% if request_path == logout_path or request_path == password_reset_complete_path %}{% url bm.gallery.views.index %}{% else %}{{ request.get_full_path }}{% endif %}">Login</a>
+            &nbsp;|&nbsp;
+            <a href="{% url bm.gallery.views.faq %}#contribute">Contribute</a>
+            {% endwith %}
+            {% endif %}
+            &nbsp;|&nbsp;
+            <a href="{% url bm.gallery.views.faq %}">FAQ</a>
+          </div> <!-- end account-info -->
+
+          <div id="globalnav"> 
+            <span class="globalnavcat">About:&nbsp;&nbsp;<a href="http://www.burningman.com/whatisburningman/">What is Burning Man?</a>&nbsp;::&nbsp;<a href="http://www.burningman.com/art_of_burningman/">Art of Burning Man</a>&nbsp;::&nbsp;<a href="http://www.burningman.com/press/">Press Here</a>&nbsp;::&nbsp;<a href="http://www.burningman.com/news/">News</a>&nbsp;::&nbsp;<a href="http://afterburn.burningman.com/">AfterBurn</a></span><br />
+            <span class="globalnavcat">Community:&nbsp;&nbsp;<a href="http://www.burningman.com/participate/">Participate</a>&nbsp;::&nbsp;<a href="http://www.burningman.com/blackrockcity_yearround/">BRC Year Round</a>&nbsp;::&nbsp;<a href="http://www.burningman.com/environment">Environment</a>&nbsp;::&nbsp;<a href="http://eplaya.burningman.com/">ePlaya</a>&nbsp;::&nbsp;<a href="http://www.burningman.com/calendar/">Calendars</a>&nbsp;::&nbsp;<a href="http://www.burningman.com/galleries/">Galleries</a></span><br />
+            <span class="globalnavcat">The Event:&nbsp;&nbsp;<a href="http://www.burningman.com/first_timers/">First Timer's Guide</a>&nbsp;::&nbsp;<a href="http://www.burningman.com/preparation/">Preparation</a>&nbsp;::&nbsp;<a href="http://www.burningman.com/on_the_playa/">On The Playa</a>&nbsp;::&nbsp;<a href="http://www.burningman.com/themecamps/">Theme Camps</a>&nbsp;::&nbsp;<a href="http://www.burningman.com/installations/">Art Installations</a></span><br />
+          </div> <!-- end globalnav -->
+        </div> <!-- end page-header -->
+
+        <div id="gallery-header"><a href="{% url bm.gallery.views.index %}"><img src="{{ MEDIA_URL }}gallery-header.jpg" width="741" height="64" /></a></div>
+        
+      </div> <!-- end header -->
+
+      <div id="main-content">
+        <a name="pastheader"> </a>
+        <div id="search-bar">
+          <form action="{% url bm.gallery.views.browse %}">
+            <img src="{{ MEDIA_URL }}search-text.gif" width="44" height="5" title="search" />
+            {% if request.GET.owner %}<input type="hidden" name="owner" value="{{ request.GET.owner }}" />{% endif %}
+            {% if request.GET.tag %}<input type="hidden" name="tag" value="{{ request.GET.tag }}" />{% endif %}
+            {% if request.GET.press_gallery %}<input type="hidden" name="press_gallery" value="{{ request.GET.press_gallery }}" />{% endif %}
+            <input type="hidden" name="b" value="true">
+            <input type="text" name="text" size="15"{% if request.GET.text %} value="{{ request.GET.text }}"{% endif %} />
+            <select name="year">
+              <option value="">Any Year</option>
+              {% for year in api.year_choices %}
+              <option value="{{ year }}"{% if request.GET.year == year %} selected{% endif %}>{{ year }}</option>
+              {% endfor %}
+            </select>
+
+            <select name="category">
+              <option value="">Any Category</option>
+              {% for slug, title in api.category_choices %}
+              <option value="{{ slug }}"{% if request.GET.category == slug %} selected{% endif %}>{{ title }}</option>
+              {% endfor %}
+            </select>
+
+            {% if not press_gallery %}
+            <select name="mediatype">
+              <option value="">Any Media</option>
+              {% for mediatype_id, mediatype_title in api.mediatype_choices %}
+              <option value="{{ mediatype_id }}"{% if request.GET.mediatype == mediatype_id %} selected{% endif %}>{{ mediatype_title }}</option>
+              {% endfor %}
+            </select>
+            {% endif %}
+
+            {% if perms.gallery.can_review %}
+            <select name="status">
+              {% for slug, title in api.status_choices %}
+              <option value="{{ slug }}"{% if request.GET.status == slug %} selected{% endif %}>{{ title }}</option>
+              {% endfor %}
+            </select>
+            {% endif %}
+
+            <input class="searchButton" type="submit" value="GO" />
+          </form>
+                        <a href="{% url bm.gallery.views.contributors %}"><span class="cont-link">Browse Contributors</span></a>
+
+        </div> <!-- end search-bar -->
+
+        {% if notifications %}
+        <div id="notifications">
+          <ul class="notifications">
+            {% for message in notifications %}
+            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            {% endfor %}
+          </ul>
+        </div> <!-- end notifications -->
+        {% endif %}
+
+
+        <!-- +++++ CONTENT WELL STARTS +++++ -->
+        <div id="content-well">
+          <!-- +++++ CONTENT AREA STARTS +++++ -->
+          <div id="content-area">
+
+            {% load conmodnav %}
+            {% block con_mod_nav %}{% con_mod_nav %}{% endblock %}
+            {% block content %}{% endblock %}
+
+            <!-- +++++ CONTENT AREA ENDS +++++ -->
+          </div> <!-- end content-area -->
+          <!-- +++++ CONTENT WELL ENDS +++++ -->            
+        </div> <!-- end content-well -->
+			
+        <div id="footer">
+          <p>&copy; All images are copyright in their respective year, by both the photographer and Burning Man</p>
+          <p>
+            <a href="http://www.burningman.com/index/privacy_policy.html">Privacy Policy</a>&nbsp;&nbsp;&nbsp;&nbsp;
+            <a href="http://www.burningman.com/blackrockcity_yearround/contacts/">Contact Info</a>
+          </p>
+          <p></p>
+        </div> <!-- end footer -->
+      </div> <!-- end main-content -->
+    </div> <!-- end wrap -->
+  </body>
+</html>

@@ -1,0 +1,73 @@
+{% extends "gallery/base.html" %}
+
+{% block content %}
+
+<form action="http://127.0.0.1:8010/galleries/upload"
+      method="post" enctype="multipart/form-data"
+      id="zc.page.browser_form"
+      class="kssattr-formname-upload_form">
+
+<div id="viewspace">
+
+    <div class="field kssattr-fieldname-form.type "
+         id="formfield-form-type">
+
+          <label for="form.type">
+            <span>Media Type</span>
+          </label>
+          <span class="fieldRequired" title="Required">
+            (Required)
+          </span>
+          <div class="formHelp">Select a type of media</div>
+	  
+          <div class="fieldErrorBox"></div>
+
+          <div class="widget formlibInlineValidation"><div>
+<div class="value">
+<select id="form.type" name="form.type" size="1" >
+<option value="photos">Photos</option>
+<option value="videos">Videos</option>
+<option value="audio">audio</option>
+<option value="artifacts">Artifacts</option>
+<option value="illustrations">Illustrations</option>
+<option value="admin-1">another</option>
+<option value="admin-2">another</option>
+
+</select>
+</div>
+<input name="form.type-empty-marker" type="hidden" value="1" />
+</div></div>
+          
+    </div>
+
+  
+    <div class="field kssattr-fieldname-form.file "
+         id="formfield-form-file">
+          <label for="form.file">
+            <span>Upload</span>
+          </label>
+          <span class="fieldRequired" title="Required">
+
+            (Required)
+          </span>
+          <div class="formHelp">Select a file to upload</div>
+	  
+          <div class="fieldErrorBox"></div>
+          <div class="widget formlibInlineValidation"><input class="hiddenType" id="form.file.used" name="form.file.used" type="hidden" value="" /> <input class="fileType" id="form.file" name="form.file" size="20" type="file"  /></div>
+          
+    </div>
+
+
+  
+<div id="actionsView">
+
+  <span class="actionButtons">
+    <input type="submit" id="form.actions.save" name="form.actions.save" value="Save" class="context" />
+    <input type="submit" id="form.actions.cancel" name="form.actions.cancel" value="Cancel" class="context" />
+  </span>
+</div>
+  
+</div>
+</form>
+
+{% endblock %}

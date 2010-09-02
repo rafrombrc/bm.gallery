@@ -1,0 +1,15 @@
+bin
+bmgallery
+build
+downloads
+eggs
+include
+lib
+media
+parts
+pip-log.txt
+var
+.installed.cfg
+.*\.egg-info
+.*\.py[co]
+.*\~$

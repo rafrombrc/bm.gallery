@@ -1,0 +1,59 @@
+{% extends "gallery/base.html" %}
+
+{% block extra-head %}
+<script type="text/javascript" src="/static/scripts/jquery-1.4.2.min.js"></script>
+<script type="text/javascript" src="/static/scripts/addremove.js"></script>
+
+<script type="text/javascript">
+  $(document).ready(function() {
+      $('#another').click(function() {
+          addField('#upload_form .upload_field:last', 'form');
+      });
+
+      $('.remove').click(function() {
+          removeField(this, 'form');
+      });
+
+      if ($('.upload_field').size() >= 10) {
+          $('#another').hide();
+      };
+  });
+</script>
+
+{% endblock %}
+
+
+{% block content %}
+
+<h1>Upload</h1>
+
+{% if upload_formset.non_form_errors %}
+<h5>{{ upload_formset.non_form_errors }}</h5>
+{% endif %}
+
+<form action="/upload"
+      method="POST" enctype="multipart/form-data"
+      id="upload_form">
+  {{ mediatype_form.as_p }}
+  {{ upload_formset.management_form }}
+  {% for form in upload_formset.forms %}
+  <p class="upload_field">{{ form.file_.label_tag }}: {{ form.file_ }} {% if not forloop.first %}<a class="remove">remove</a>{% endif %}</p>
+  {% endfor %}
+  <a id="another">Add another</a>
+
+
+  <div id="viewspace">
+    <div id="actionsView">
+
+      <span class="actionButtons">
+        <input type="submit" id="save" name="save" value="Save" class="context" />
+        <input type="submit" id="cancel" name="cancel" value="Cancel" class="context" />
+      </span>
+    </div>
+  
+</div>
+</form>
+
+
+
+{% endblock %}

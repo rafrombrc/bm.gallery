@@ -1,0 +1,78 @@
+{% extends "gallery/base.html" %}
+{% load paginate %}
+{% load qsify %}
+
+{% block content %}
+<!-- +++++ IN-PAGE NAV AND PAGE HEADER STARTS +++++ -->	
+
+<div id="page-title-nav">
+  
+
+  
+
+  {% if total_count %}
+  {% if press_gallery %}
+  <h1>Press Gallery</h1>
+  {% else %}
+  <h1>Browse</h1>
+  {% endif %}
+
+
+  {% pagination_widget %}
+
+  {% else %}
+
+  <div>
+    <h1>No results</h1>
+  </div>
+  {% endif %}{# <!-- total_count --> #}
+  
+</div>
+<!-- +++++ IN-PAGE NAV AND PAGE HEADER ENDS +++++ -->	
+<div id="tag-cont-press">
+{% if tag %}
+  <em>Tagged: {{ tag }}</em> (<a href="{{ no_extra_filters_url }}">remove keyword filter</a>)
+  {% endif %}
+  
+  {% if owner %}
+  <em>Contributed by: {{ owner.get_full_name }}</em> (<a href="{{ no_extra_filters_url }}">remove contributor filter</a>)
+  {% endif %}
+  
+  {% if press_gallery %}
+  (<a href="{{ no_extra_filters_url }}">leave press gallery</a>)
+  {% endif %}
+</div>
+
+
+{% if total_count %}
+<!-- +++++ THUMBNAILS START +++++ -->	
+<div class="thumbnail-lists">
+  {% for result in page_results.object_list %}
+  <div class="thumbnail-item">
+    <div class="thumbnail-wrap">
+      <div class="state-published">
+
+          <div class="thumbnail-image">
+              <a href="{% qsify result.get_absolute_url %}#pastheader"
+           title="{{ result.title }}">
+            <img src="{{ result.get_thumbnail_image.url }}"
+                 alt="{{ result.title }}" title="{{ result.title }}"
+                 height="128"  width="96"/></a>
+          </div>
+          <br />
+          <div class="thumb-text">
+            <span class="thumbnail-name"><a href="{% qsify result.get_absolute_url %}#pastheader"
+           title="{{ result.title }}">{{ result.owner.first_name }} {{ result.owner.last_name }}</a></span>,
+            <span class="thumbnail-date"><a href="{% qsify result.get_absolute_url %}#pastheader"
+           title="{{ result.title }}">{{ result.year }}</a></span>
+          </div>
+
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+<!-- +++++ THUMBNAILS END +++++ -->
+{% endif %}{# <!-- total_count --> #}
+
+{% endblock %}

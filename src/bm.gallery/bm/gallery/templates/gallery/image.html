@@ -1,0 +1,61 @@
+
+{% extends "gallery/media_detail.html" %}
+
+
+{% block media_display %}
+{% with resource as image %}
+<div id="image_preview"
+     style="height: {{ display_height }}px; width: {{ image.display.width }}px; overflow: hidden;">
+  <img src="{{ image.display.url }}" alt="{{ image.title }}" title="{{ image.title }}"
+       height="{{ image.display.height }}" width="{{ image.display.width }}" />
+</div>
+{% endwith %}
+{% endblock %}
+
+
+{% block type_actions %}
+{% comment %}
+  explicit type checking is teh suck; would be easier to avoid if Django
+  would let you make proper function calls (i.e. with arguments). :(
+{% endcomment %}
+
+{% with resource as image %}
+{% if image.child_attrpath == 'imagebase.photo' %}
+{% if perms.gallery.can_review %}
+<span class="metadata_key">
+  <form method="post" action="{% url bm.gallery.views.press_gallery %}">
+    <input type="hidden" name="id" value="{{ image.id }}" />
+    {% if not image.in_press_gallery %}
+    <input type="submit" name="press_gallery" value="Add" /> to
+    {% else %}
+    <input type="submit" name="press_gallery" value="Remove" /> from
+    {% endif %}
+    <a href="{% url bm.gallery.views.browse %}?press_gallery=true">Press Gallery</a>
+  </form>
+</span>
+{% endif %}
+
+{# press_gallery_image_url will only be set if user has permission #}
+{% if press_gallery_image_url %}
+<a href="{{ press_gallery_image_url }}">Press version</a>
+{% endif %}
+{% endif %}
+
+{% if perms.gallery.can_review %}
+<span class="metadata_key">
+  <form method="post" action="{% url bm.gallery.views.full_size %}">
+    <input type="hidden" name="id" value="{{ image.id }}" />
+    {% if not image.full_image_available %}
+    <input type="submit" name="full_size" value="Make" /> full size image available
+    {% else %}
+    <input type="submit" name="full_size" value="Remove" /> full size image
+    <br />
+    <a href="{{ image.full_image.url }}">Full size version</a>
+    {% endif %}
+  </form>
+</span>
+{% endif %}
+
+{% endwith %}
+{% endblock %}
+

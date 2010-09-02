@@ -1,0 +1,18 @@
+{% extends "gallery/base.html" %}
+
+{% block content %}
+
+<form method="post">
+
+{% for user in pending_contributors %}
+  <div>
+    <input type="checkbox" name="contrib:{{ user.username }}" />{{ user.first_name }} {{ user.last_name }}: {{ user.username }}
+  </div>
+{% endfor %}
+
+<input type="submit" value="Make Contributor" name="save">
+<input type="submit" value="Cancel" name="cancel">
+
+</form>
+
+{% endblock %}

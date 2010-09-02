@@ -1,0 +1,9 @@
+<!-- +++++ CONTRIBUTOR / MODERATOR NAV STARTS +++++ -->
+<div id="contrib-mod-nav">
+  <ul>
+    {% for nav_item in nav_items %}
+    <li><img class="end-cm-left" src="/static/user-bg-left.gif" width="16" height="29" />{% if nav_item.current %}<span class="current-cont-nav">{% else %}<a href="{{ nav_item.url }}">{% endif %}{{ nav_item.title }}{% if nav_item.current %}</span>{% else %}</a>{% endif %}<img class="end-cm-right" src="/static/user-bg-right.gif" width="16" height="29" /></li>
+    {% endfor %}
+  </ul>
+</div> <!-- end contrib-mod-nav -->
+<!-- +++++ CONTRIBUTOR / MODERATOR NAV ENDS +++++ -->

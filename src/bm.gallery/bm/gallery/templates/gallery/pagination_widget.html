@@ -1,0 +1,45 @@
+{% load qsify %}
+
+<div class="thumbnail-nav">
+  <div class="thumbnail-nav-text"><img class="end-left" src="{{ MEDIA_URL }}thumbnail-bg-left.gif" width="59" height="29" />
+    {% if paginator.has_previous %}
+	 <a href="{% qsify request.path false page_results.previous_page_number %}#pastheader"><span class="arrow"><img src="/static/nav-prev-arrow.gif" /></span></a>
+     <span class="previous"><a href="{% qsify request.path false page_results.previous_page_number %}#pastheader">Previous {{ prev_batch_size }} items</a></span>
+    {% endif %}
+
+    {% if paginator.firstlink %}
+    <!-- Link to first -->
+    <a href="{% qsify request.path false 1 %}#pastheader">1</a>
+    {% if paginator.firstellipses %}...{% endif %}
+    {% endif %}
+
+    {% for page in paginator.page_range %}
+    {% if page == paginator.page %}
+    [{{ page }}]
+    {% else %}
+    <a href="{% qsify request.path false page %}#pastheader">{{ page }}</a>
+    {% endif %}
+    {% endfor %}
+
+    {% if paginator.lastlink %}
+    <!-- Link to last -->
+    <span>
+      {% if paginator.lastellipses %}...{% endif %}
+      <a href="{% qsify request.path false paginator.num_pages %}#pastheader">{{ paginator.num_pages }}</a>
+    </span>
+    {% endif %}
+
+    <span id="batch-count">({{ total_count }})</span>
+
+    {% if paginator.has_next %}
+    <span class="next">
+      <a href="{% qsify request.path false page_results.next_page_number %}#pastheader">
+        Next {{ next_batch_size }} items</a>
+        <a href="{% qsify request.path false page_results.next_page_number %}#pastheader"><span class="arrow"><img src="/static/nav-next-arrow.gif" /></span></a>
+      
+      
+    </span>
+    {% endif %}
+	<img class="end-right" src="/static/thumbnail-bg-right.gif" width="16" height="29" />
+  </div>
+</div>

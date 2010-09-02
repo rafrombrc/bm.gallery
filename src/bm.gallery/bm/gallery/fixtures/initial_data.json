@@ -1,0 +1,104 @@
+[
+  {
+    "model": "gallery.category",
+    "pk": 1,
+    "fields": {
+      "slug": "art",
+      "title": "Art"
+    }
+  },
+  {
+    "model": "gallery.category",
+    "pk": 2,
+    "fields": {
+      "slug": "man",
+      "title": "The Man"
+    }
+  },
+  {
+    "model": "gallery.category",
+    "pk": 3,
+    "fields": {
+      "slug": "misc",
+      "title": "Other / Misc"
+    }
+  },
+  {
+    "model": "gallery.category",
+    "pk": 4,
+    "fields": {
+      "slug": "people",
+      "title": "People"
+    }
+  },
+  {
+    "model": "gallery.category",
+    "pk": 5,
+    "fields": {
+      "slug": "performances",
+      "title": "Performances"
+    }
+  },
+  {
+    "model": "gallery.category",
+    "pk": 6,
+    "fields": {
+      "slug": "art_cars",
+      "title": "Mobile Art"
+    }
+  },
+  {
+    "model": "gallery.category",
+    "pk": 7,
+    "fields": {
+      "slug": "burn_night",
+      "title": "Night of the Burn"
+    }
+  },
+  {
+    "model": "gallery.category",
+    "pk": 8,
+    "fields": {
+      "slug": "nature",
+      "title": "Desert / Nature"
+    }
+  },
+  {
+    "model": "gallery.category",
+    "pk": 9,
+    "fields": {
+      "slug": "theme_camps",
+      "title": "Theme Camps"
+    }
+  },
+  {
+    "model": "gallery.category",
+    "pk": 10,
+    "fields": {
+      "slug": "year_round",
+      "title": "Year Round Events"
+    }
+  },
+
+  {
+    "pk": 1, 
+    "model": "auth.group", 
+    "fields": {
+      "name": "galleries"
+    }
+  }, 
+  {
+    "pk": 2, 
+    "model": "auth.group", 
+    "fields": {
+      "name": "galleries_reviewer"
+    }
+  }, 
+  {
+    "pk": 3, 
+    "model": "auth.group", 
+    "fields": {
+      "name": "galleries_press"
+    }
+  }
+]
