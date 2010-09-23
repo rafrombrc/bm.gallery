@@ -606,6 +606,8 @@ def clean_email(form):
     field definitions."""
     email = form.cleaned_data.get('email')
     username = form.cleaned_data.get('username')
+    if username is None:
+        username = form.instance.username
     existing = authmodels.User.objects.filter(email=email)
     existing = existing.exclude(username=username)
     if email and existing.count():
