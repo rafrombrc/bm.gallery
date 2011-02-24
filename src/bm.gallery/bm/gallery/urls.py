@@ -50,6 +50,7 @@ urlpatterns += patterns(
      'password_reset_confirm'),
     (r'^reset/done/$', django.contrib.auth.views.password_reset_complete,
      {'template_name': 'gallery/password_reset_complete.html'}),
+    (r'^(?P<mediatype>.*)/by_id$', 'id_lookup'),
     (r'^(?P<mediatype>.*)/by_legacy_id$', 'legacy_lookup'),
     (r'^(?P<mediatype>.*)/(?P<username>.*)/(?P<slug>.*)/moderate$',
      'media_moderate'),
