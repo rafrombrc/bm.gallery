@@ -988,16 +988,16 @@ def media_feature(request, mediatype, username, slug):
                                                     username=username,
                                                     slug=slug)))
 
-def legacy_lookup(request, mediatype):
+def _id_lookup(request, mediatype, fieldname):
     mediatype_plural = mediatype
     mediatype = mediatype_deplural.get(mediatype_plural)
     klass = models.mediatype_map.get(mediatype, {}).get('klass')
     if not klass:
         return HttpResponseNotFound()
-    legacy_id = request.GET.get('id')
-    if not legacy_id:
+    id_ = request.GET.get('id')
+    if not id_:
         return handler400(request)
-    resource = get_object_or_404(klass, legacy_id=legacy_id)
+    resource = get_object_or_404(klass, **{fieldname: id_})
     username = resource.owner.username
     if request.GET.get('full_image', '').lower() == 'true':
         extension = resource.image.file.name.split('.')[-1]
@@ -1013,6 +1013,12 @@ def legacy_lookup(request, mediatype):
     if request.GET.get('geturl', '').lower() == 'true':
         return HttpResponse(url)
     return HttpResponseRedirect(url)
+
+def id_lookup(request, mediatype):
+    return _id_lookup(request, mediatype, 'id')
+
+def legacy_lookup(request, mediatype):
+    return _id_lookup(request, mediatype, 'legacy_id')
 
 def press_gallery(request):
     """If POST, either add to or remove from press gallery.  If GET,
