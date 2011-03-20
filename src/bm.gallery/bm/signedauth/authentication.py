@@ -1,10 +1,26 @@
 from django.contrib.auth.models import User, AnonymousUser
 from django.http import HttpResponse
 from django.utils.translation import ugettext_lazy as _
-from models import UserKey
+from models import UserKey, WhitelistedIP
 import logging
 
 log = logging.getLogger(__name__)
+
+class IPUserAuthentication(UserAuthentication):
+    """
+    Authenticates via IP WhiteListing if possible,
+    followed by UserAuthentication.
+    """
+    def is_authenticated(self, request):
+        log.debug('IPUserAuthentication start')
+
+        if WhitelistedIP.objects.request_is_whitelisted(request):
+            return True
+        return super(IPUserAuthentication, self).is_authentiated(request)
+
+    def __repr__(self):
+        return u'<IPUserAuthentication>'
+
 
 class UserAuthentication(object):
     """

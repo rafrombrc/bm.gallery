@@ -1,7 +1,7 @@
 #import unittest
 from django.contrib.auth.models import User
 from django.test import TestCase
-from models import UserKey
+from models import UserKey, WhitelistedIP
 import logging
 import urlparse
 log = logging.getLogger('test')
@@ -97,3 +97,9 @@ class UserKeyTest(TestCase):
          # bad seed
          bad = signed.replace('uuu','badseed')
          self.assertFalse(k.verify_url(bad)[0])
+
+class WhitelistTest(TestCase):
+    fixtures = ["signedauth_auth.json",]
+    def testWhitelistByIP(self):
+        self.assert_(WhitelistedIP.objects.ip_is_whitelisted('127.0.0.1'))
+
