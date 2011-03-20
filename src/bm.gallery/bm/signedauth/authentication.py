@@ -1,10 +1,39 @@
 from django.contrib.auth.models import User, AnonymousUser
 from django.http import HttpResponse
-from django.utils.translation import ugettext_lazy as _
 from models import UserKey, WhitelistedIP
 import logging
 
 log = logging.getLogger(__name__)
+
+class UserAuthentication(object):
+    """
+    Authenticates via RequestSignature methods
+    """
+    def __init__(self):
+        self.error = ''
+
+    def is_authenticated(self, request):
+        log.debug('UserAuthentication start')
+        self.error = ''
+        sig = None
+        sig = Signature(request)
+        valid = sig.valid
+
+        log.debug('auth result: %s, %s', valid, sig.error)
+        if sig.valid:
+            request.user = sig.user
+        else:
+            self.error = sig.error
+
+        return self.error == ''
+
+    def challenge(self):
+        resp = HttpResponse("Authorization Required: %s" % self.error)
+        resp.status_code = 401
+        return resp
+
+    def __repr__(self):
+        return u'<UserAuthentication>'
 
 class IPUserAuthentication(UserAuthentication):
     """
@@ -21,35 +50,7 @@ class IPUserAuthentication(UserAuthentication):
     def __repr__(self):
         return u'<IPUserAuthentication>'
 
-
-class UserAuthentication(object):
-    """
-    Authenticates via RequestSignature methods
-    """
-    def __init__(self):
-        self.error = ''
-
-    def is_authenticated(self, request):
-        log.debug('UserAuthentication start')
-        self.error = ''
-        sig = None
-        sig = Signature(request)
-
-        log.debug('auth result: %s, %s', sig.valid, sig.message)
-        if sig.valid:
-            request.user = sig.user
-        else:
-            self.error = sig.error
-
-        return self.error == ''
-
-    def challenge(self):
-        resp = HttpResponse("Authorization Required: %s" % self.error)
-        resp.status_code = 401
-        return resp
-
-    def __repr__(self):
-        return u'<UserAuthentication>'
+# ----- helpers
 
 class Signature(object):
     """A signature, generated from a Request."""
@@ -65,10 +66,10 @@ class Signature(object):
 
     def __unicode__(self):
         if self.valid:
-            valid = _('valid')
+            valid = 'valid'
         else:
-            valid = _('not valid')
-        return _(u"Signature for %(user)s [%(valid)s]") % {'user': self.user, 'valid' : valid}
+            valid = 'not valid'
+        return u"Signature for %(user)s [%(valid)s]" % {'user': self.user, 'valid' : valid}
 
     @property
     def query(self):
@@ -126,7 +127,7 @@ class Signature(object):
             url = self.request.get_full_path()
 
         else:
-            self.error = _('No url to check')
+            self.error = 'No url to check'
             self._valid = False
             return False
 
@@ -142,7 +143,7 @@ class Signature(object):
 
             seed = self.seed
             if seed is None:
-                self.error = _('Signature invalid - no seed given')
+                self.error = 'Signature invalid - no seed given'
 
             try:
                 key = UserKey.objects.get(user = u)
@@ -151,7 +152,7 @@ class Signature(object):
                     self.error = msg
 
             except UserKey.DoesNotExist:
-                self.error = _("I can't find a key for that user")
+                self.error = "I can't find a key for that user"
 
             self._valid = self.error is None
 

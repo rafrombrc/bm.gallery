@@ -17,3 +17,4 @@ var
 *.pyo
 *~
 explore.db
+.Python
