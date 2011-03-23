@@ -20,9 +20,9 @@ urlpatterns = patterns(
     '',
     url(r'^admin/(.*)', admin.site.root),
     url(r'^/', 'bm.signedauth.explore.views.explore'),
-    url(r'^echo\.(?P<emitter_format>[-\w]+)/$',echo),
-    url(r'^ipecho\.(?P<emitter_format>[-\w]+)/$',ipecho),
-    url(r'^userecho\.(?P<emitter_format>[-\w]+)/$',userecho)
+    url(r'^echo\.(?P<emitter_format>[-\w]+)/$',echo, name="echohandler"),
+    url(r'^ipecho\.(?P<emitter_format>[-\w]+)/$',ipecho, name="ipechohandler"),
+    url(r'^userecho\.(?P<emitter_format>[-\w]+)/$',userecho, name="userechohandler")
 
 )
 

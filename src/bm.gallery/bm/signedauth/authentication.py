@@ -45,7 +45,7 @@ class IPUserAuthentication(UserAuthentication):
 
         if WhitelistedIP.objects.request_is_whitelisted(request):
             return True
-        return super(IPUserAuthentication, self).is_authentiated(request)
+        return super(IPUserAuthentication, self).is_authenticated(request)
 
     def __repr__(self):
         return u'<IPUserAuthentication>'
@@ -93,22 +93,26 @@ class Signature(object):
             req = self.request
             user = None
             if req is not None:
-                if hasattr(req, 'user') and req.user is not None:
+                username = req.GET.get('user', None)
+                if username:
+                    log.debug('Got username from query: %s', username)
+                    try:
+                        user = User.objects.get(username=username)
+                    except User.DoesNotExist:
+                        log.debug('Could not retrieve username: %s', username)
+
+                if user is None and hasattr(req, 'user') and req.user is not None:
                     log.debug('Got user from request')
                     user = req.user
-                else:
-                    log.debug('Getting user from query')
-                    username = req.GET.get('user', None)
-                    if username:
-                        try:
-                            user = User.objects.get(username=username)
-                        except User.DoesNotExist:
-                            log.debug('Could not retrieve username: %s', username)
 
             if user is None:
                 log.debug('No user - returning AnonymousUser')
                 user = AnonymousUser()
             self._user = user
+
+            if req is not None and req.user is None:
+                req.user = user
+
         return self._user
 
     @property

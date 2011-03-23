@@ -1,6 +1,7 @@
-#import unittest
 from django.contrib.auth.models import User
+from django.core import urlresolvers
 from django.test import TestCase
+from django.test.client import Client
 from models import UserKey, WhitelistedIP
 import logging
 import urlparse
@@ -97,6 +98,117 @@ class UserKeyTest(TestCase):
          # bad seed
          bad = signed.replace('uuu','badseed')
          self.assertFalse(k.verify_url(bad)[0])
+
+class UserKeyEchoHandlerTest(TestCase):
+    fixtures = ["signedauth_auth.json",]
+
+    def testAuthNoSig(self):
+        """Test that a simple django-piston handler will not permit unsigned url calls."""
+        client = Client()
+        try:
+            url = urlresolvers.reverse('userechohandler',
+                                       kwargs={'emitter_format' : 'json'})
+            response = self.client.get(url + '?echo=test')
+            self.assertContains(response, "Authorization Required",
+                                status_code=401)
+
+        except urlresolvers.NoReverseMatch:
+            log.warning("Could not test userauth echo handler - no echo handler found, perhaps you need to add 'bm.signedauth.explore.urls' to your urls?")
+
+    def testGoodAuth(self):
+        """Test that a simple django-piston handler will permit properly signed url calls."""
+        client = Client()
+        try:
+            url = urlresolvers.reverse('userechohandler',
+                                       kwargs={'emitter_format' : 'json'})
+            url += '?echo=success'
+            k = UserKey.objects.get(pk=2)
+            signed = k.sign_url(url, '123')
+            response = self.client.get(signed)
+
+            self.assertContains(response, '"data_length": 7',
+                                status_code=200)
+            self.assertContains(response, '"echo": "success"',
+                                status_code=200)
+
+        except urlresolvers.NoReverseMatch:
+            log.warning("Could not test userauth echo handler - no echo handler found, perhaps you need to add 'bm.signedauth.explore.urls' to your urls?")
+
+
+class IPUserKeyEchoHandlerTest(TestCase):
+    fixtures = ["signedauth_auth.json",]
+
+    def testAuthNoSig(self):
+        """Test that a simple django-piston handler will not permit unsigned url callswhen the IP is not whitelisted."""
+        WhitelistedIP.objects.get(pk=1).delete()
+        client = Client()
+        try:
+            url = urlresolvers.reverse('ipechohandler',
+                                       kwargs={'emitter_format' : 'json'})
+            response = self.client.get(url + '?echo=test')
+            self.assertContains(response, "Authorization Required",
+                                status_code=401)
+
+        except urlresolvers.NoReverseMatch:
+            log.warning("Could not test ipuserauth echo handler - no echo handler found, perhaps you need to add 'bm.signedauth.explore.urls' to your urls?")
+
+    def testGoodAuth(self):
+        """Test that a simple django-piston handler will permit properly signed url calls, even when the IP is not whitelisted."""
+        client = Client()
+        WhitelistedIP.objects.get(pk=1).delete()
+        try:
+            url = urlresolvers.reverse('ipechohandler',
+                                       kwargs={'emitter_format' : 'json'})
+            url += '?echo=success'
+            k = UserKey.objects.get(pk=2)
+            signed = k.sign_url(url, '123')
+            response = self.client.get(signed)
+
+            self.assertContains(response, '"data_length": 7',
+                                status_code=200)
+            self.assertContains(response, '"echo": "success"',
+                                status_code=200)
+
+        except urlresolvers.NoReverseMatch:
+            log.warning("Could not test ipuserauth echo handler - no echo handler found, perhaps you need to add 'bm.signedauth.explore.urls' to your urls?")
+
+    def testGoodIPNoSig(self):
+        """Test that a simple django-piston handler will permit unsigned url calls from whitelisted IPs."""
+        client = Client()
+        try:
+            url = urlresolvers.reverse('ipechohandler',
+                                       kwargs={'emitter_format' : 'json'})
+            url += '?echo=happy'
+            response = self.client.get(url)
+
+            self.assertContains(response, '"data_length": 5',
+                                status_code=200)
+            self.assertContains(response, '"echo": "happy"',
+                                status_code=200)
+
+        except urlresolvers.NoReverseMatch:
+            log.warning("Could not test ipuserauth echo handler - no echo handler found, perhaps you need to add 'bm.signedauth.explore.urls' to your urls?")
+
+class EchoHandlerTest(TestCase):
+    fixtures = ["signedauth_auth.json",]
+
+
+    def testEchoHandler(self):
+        """Simple test to ensure that the echo handler
+        is working when called without authentication"""
+        client = Client()
+
+        try:
+            url = urlresolvers.reverse('echohandler',
+                                       kwargs={'emitter_format' : 'json'})
+            response = self.client.get(url + '?echo=test')
+            self.assertContains(response, '"data_length": 4',
+                                status_code=200)
+            self.assertContains(response, '"echo": "test"',
+                                status_code=200)
+
+        except urlresolvers.NoReverseMatch:
+            log.warning("Could not test echo handler - no echo handler found, perhaps you need to add 'bm.signedauth.explore.urls' to your urls?")
 
 class WhitelistTest(TestCase):
     fixtures = ["signedauth_auth.json",]
