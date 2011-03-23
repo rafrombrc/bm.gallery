@@ -90,7 +90,7 @@ class UserKey(models.Model):
             else:
                 timestamp = datetime.datetime.now()
                 timestamp = time.mktime(timestamp.timetuple())
-                seed = str(timestamp)
+                seed = str(int(timestamp))
                 log.debug('sign_url: no seed, using timestamp %s', seed)
 
         if self.user:

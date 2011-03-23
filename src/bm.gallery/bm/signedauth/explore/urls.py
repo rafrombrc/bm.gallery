@@ -19,7 +19,7 @@ echo = Resource(handler=EchoHandler)
 urlpatterns = patterns(
     '',
     url(r'^admin/(.*)', admin.site.root),
-    url(r'^/', 'bm.signedauth.explore.views.explore'),
+    url(r'^explore/$', 'bm.signedauth.explore.views.explore', name="exploreform"),
     url(r'^echo\.(?P<emitter_format>[-\w]+)/$',echo, name="echohandler"),
     url(r'^ipecho\.(?P<emitter_format>[-\w]+)/$',ipecho, name="ipechohandler"),
     url(r'^userecho\.(?P<emitter_format>[-\w]+)/$',userecho, name="userechohandler")
