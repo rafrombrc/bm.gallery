@@ -90,7 +90,7 @@ class UserKey(models.Model):
             else:
                 timestamp = datetime.datetime.now()
                 timestamp = time.mktime(timestamp.timetuple())
-                seed = str(timestamp)
+                seed = str(int(timestamp))
                 log.debug('sign_url: no seed, using timestamp %s', seed)
 
         if self.user:
@@ -203,3 +203,39 @@ class UserKey(models.Model):
             return (False, _('Signature does not validate'))
 
         return (True,'OK')
+
+class WhitelistedIPManager(models.Manager):
+    def request_is_whitelisted(self, request):
+        """Tests whether the request's IP is whitelisted.
+
+        Args:
+            request: A django Request object
+
+        Returns:
+            Boolean
+        """
+
+        ip = request.META.get('REMOTE_ADDR', None)
+        return self.ip_is_whitelisted(ip)
+
+    def ip_is_whitelisted(self, ip):
+        """Tests whether the request's IP is whitelisted.
+
+        Args:
+            IP: a string representing the IP to be tested
+
+        Returns:
+            Boolean
+        """
+        return ip is not None and ip and self.filter(ip = ip).count() > 0
+
+class WhitelistedIP(models.Model):
+    """A single IP Address that doesn't have to explicitly
+    provide signatures to be authenticated as the attached user."""
+
+    label = models.CharField(_("Label"), max_length=30)
+    ip = models.IPAddressField(_("Ip Address"), db_index=True)
+    user = models.ForeignKey(User)
+
+    objects = WhitelistedIPManager()
+

@@ -1,7 +1,6 @@
 from django.contrib.auth.models import User, AnonymousUser
 from django.http import HttpResponse
-from django.utils.translation import ugettext_lazy as _
-from models import UserKey
+from models import UserKey, WhitelistedIP
 import logging
 
 log = logging.getLogger(__name__)
@@ -18,8 +17,9 @@ class UserAuthentication(object):
         self.error = ''
         sig = None
         sig = Signature(request)
+        valid = sig.valid
 
-        log.debug('auth result: %s, %s', sig.valid, sig.message)
+        log.debug('auth result: %s, %s', valid, sig.error)
         if sig.valid:
             request.user = sig.user
         else:
@@ -35,6 +35,23 @@ class UserAuthentication(object):
     def __repr__(self):
         return u'<UserAuthentication>'
 
+class IPUserAuthentication(UserAuthentication):
+    """
+    Authenticates via IP WhiteListing if possible,
+    followed by UserAuthentication.
+    """
+    def is_authenticated(self, request):
+        log.debug('IPUserAuthentication start')
+
+        if WhitelistedIP.objects.request_is_whitelisted(request):
+            return True
+        return super(IPUserAuthentication, self).is_authenticated(request)
+
+    def __repr__(self):
+        return u'<IPUserAuthentication>'
+
+# ----- helpers
+
 class Signature(object):
     """A signature, generated from a Request."""
 
@@ -49,10 +66,10 @@ class Signature(object):
 
     def __unicode__(self):
         if self.valid:
-            valid = _('valid')
+            valid = 'valid'
         else:
-            valid = _('not valid')
-        return _(u"Signature for %(user)s [%(valid)s]") % {'user': self.user, 'valid' : valid}
+            valid = 'not valid'
+        return u"Signature for %(user)s [%(valid)s]" % {'user': self.user, 'valid' : valid}
 
     @property
     def query(self):
@@ -76,22 +93,26 @@ class Signature(object):
             req = self.request
             user = None
             if req is not None:
-                if hasattr(req, 'user') and req.user is not None:
+                username = req.GET.get('user', None)
+                if username:
+                    log.debug('Got username from query: %s', username)
+                    try:
+                        user = User.objects.get(username=username)
+                    except User.DoesNotExist:
+                        log.debug('Could not retrieve username: %s', username)
+
+                if user is None and hasattr(req, 'user') and req.user is not None:
                     log.debug('Got user from request')
                     user = req.user
-                else:
-                    log.debug('Getting user from query')
-                    username = req.GET.get('user', None)
-                    if username:
-                        try:
-                            user = User.objects.get(username=username)
-                        except User.DoesNotExist:
-                            log.debug('Could not retrieve username: %s', username)
 
             if user is None:
                 log.debug('No user - returning AnonymousUser')
                 user = AnonymousUser()
             self._user = user
+
+            if req is not None and req.user is None:
+                req.user = user
+
         return self._user
 
     @property
@@ -110,7 +131,7 @@ class Signature(object):
             url = self.request.get_full_path()
 
         else:
-            self.error = _('No url to check')
+            self.error = 'No url to check'
             self._valid = False
             return False
 
@@ -126,7 +147,7 @@ class Signature(object):
 
             seed = self.seed
             if seed is None:
-                self.error = _('Signature invalid - no seed given')
+                self.error = 'Signature invalid - no seed given'
 
             try:
                 key = UserKey.objects.get(user = u)
@@ -135,7 +156,7 @@ class Signature(object):
                     self.error = msg
 
             except UserKey.DoesNotExist:
-                self.error = _("I can't find a key for that user")
+                self.error = "I can't find a key for that user"
 
             self._valid = self.error is None
 
