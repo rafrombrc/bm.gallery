@@ -3,3 +3,5 @@
  {"pk": 1, "model": "signedauth.whitelistedip", "fields": {"ip": "127.0.0.1", "user": 2, "label": "Local"}},
  {"pk": 1, "model": "auth.user", "fields": {"username": "admin", "first_name": "", "last_name": "", "is_active": true, "is_superuser": true, "is_staff": true, "last_login": "2011-03-20 11:33:16", "groups": [], "user_permissions": [], "password": "sha1$b26d5$2aa58b8741e5b3d3aa3dc96f40886bae1dd8b63a", "email": "test@example.com", "date_joined": "2011-03-20 11:30:32"}},
  {"pk": 2, "model": "auth.user", "fields": {"username": "LocalUser", "first_name": "", "last_name": "", "is_active": true, "is_superuser": false, "is_staff": false, "last_login": "2011-03-20 11:35:59", "groups": [], "user_permissions": [], "password": "sha1$d2a97$048e83e98787571dbaf381d78e00d607397a2ec0", "email": "", "date_joined": "2011-03-20 11:35:59"}}]
+
+
