@@ -1,8 +1,6 @@
 from bm.gallery import feeds
 from django.conf import settings
-from django.conf.urls.defaults import handler404
-from django.conf.urls.defaults import include
-from django.conf.urls.defaults import patterns
+from django.conf.urls.defaults import handler404, include, patterns
 from django.contrib import admin
 import django.contrib.auth.views
 
@@ -74,6 +72,7 @@ urlpatterns += patterns(
      {'template_name': 'gallery/password_reset_done.html'}),
     (r'^password-change', 'password_change',
      {'template_name': 'gallery/password_change.html'}),
+    (r'^api/(.*)', include('gallery.api')),
     )
 
 handler500 = 'bm.gallery.views.handler500'
