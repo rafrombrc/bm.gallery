@@ -1,6 +1,5 @@
 from bm.signedauth.authentication import UserAuthentication, IPUserAuthentication
-from django.conf import settings
-from django.conf.urls.defaults import patterns, include, handler500, handler404, url
+from django.conf.urls.defaults import patterns, handler500, handler404, url
 from django.contrib import admin
 from handlers import EchoHandler
 from piston.resource import Resource

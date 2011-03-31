@@ -108,7 +108,7 @@ class UserKeyEchoHandlerTest(TestCase):
         try:
             url = urlresolvers.reverse('userechohandler',
                                        kwargs={'emitter_format' : 'json'})
-            response = self.client.get(url + '?echo=test')
+            response = client.get(url + '?echo=test')
             self.assertContains(response, "Authorization Required",
                                 status_code=401)
 
@@ -124,7 +124,7 @@ class UserKeyEchoHandlerTest(TestCase):
             url += '?echo=success'
             k = UserKey.objects.get(pk=2)
             signed = k.sign_url(url, '123')
-            response = self.client.get(signed)
+            response = client.get(signed)
 
             self.assertContains(response, '"data_length": 7',
                                 status_code=200)
@@ -145,7 +145,7 @@ class IPUserKeyEchoHandlerTest(TestCase):
         try:
             url = urlresolvers.reverse('ipechohandler',
                                        kwargs={'emitter_format' : 'json'})
-            response = self.client.get(url + '?echo=test')
+            response = client.get(url + '?echo=test')
             self.assertContains(response, "Authorization Required",
                                 status_code=401)
 
@@ -162,7 +162,7 @@ class IPUserKeyEchoHandlerTest(TestCase):
             url += '?echo=success'
             k = UserKey.objects.get(pk=2)
             signed = k.sign_url(url, '123')
-            response = self.client.get(signed)
+            response = client.get(signed)
 
             self.assertContains(response, '"data_length": 7',
                                 status_code=200)
@@ -179,7 +179,7 @@ class IPUserKeyEchoHandlerTest(TestCase):
             url = urlresolvers.reverse('ipechohandler',
                                        kwargs={'emitter_format' : 'json'})
             url += '?echo=happy'
-            response = self.client.get(url)
+            response = client.get(url)
 
             self.assertContains(response, '"data_length": 5',
                                 status_code=200)
@@ -201,7 +201,7 @@ class EchoHandlerTest(TestCase):
         try:
             url = urlresolvers.reverse('echohandler',
                                        kwargs={'emitter_format' : 'json'})
-            response = self.client.get(url + '?echo=test')
+            response = client.get(url + '?echo=test')
             self.assertContains(response, '"data_length": 4',
                                 status_code=200)
             self.assertContains(response, '"echo": "test"',
@@ -215,3 +215,9 @@ class WhitelistTest(TestCase):
     def testWhitelistByIP(self):
         self.assert_(WhitelistedIP.objects.ip_is_whitelisted('127.0.0.1'))
 
+
+    def testWhitelistUser(self):
+
+        user = WhitelistedIP.objects.whitelisted_user(ip='127.0.0.1')
+        self.assert_(user)
+        self.assertEquals(user.username, 'LocalUser')

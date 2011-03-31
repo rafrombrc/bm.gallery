@@ -14,6 +14,11 @@ urlpatterns = patterns(
     (r'^register$', 'register'),
     )
 
+urlpatterns += patterns(
+    '',
+    (r'^api/', include('bm.gallery.api'))
+    )
+
 galroot = getattr(settings, 'GALLERIES_ROOT', settings.MEDIA_ROOT)
 if settings.DEBUG:
     urlpatterns += patterns('django.views.static',
@@ -72,7 +77,6 @@ urlpatterns += patterns(
      {'template_name': 'gallery/password_reset_done.html'}),
     (r'^password-change', 'password_change',
      {'template_name': 'gallery/password_change.html'}),
-    (r'^api/(.*)', include('gallery.api')),
     )
 
 handler500 = 'bm.gallery.views.handler500'

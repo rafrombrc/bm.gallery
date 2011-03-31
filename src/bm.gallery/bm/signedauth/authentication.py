@@ -43,7 +43,9 @@ class IPUserAuthentication(UserAuthentication):
     def is_authenticated(self, request):
         log.debug('IPUserAuthentication start')
 
-        if WhitelistedIP.objects.request_is_whitelisted(request):
+        user = WhitelistedIP.objects.whitelisted_user(request=request)
+        if user is not None:
+            request.user = user
             return True
         return super(IPUserAuthentication, self).is_authenticated(request)
 

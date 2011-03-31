@@ -68,6 +68,8 @@ INSTALLED_APPS = (
     'imagekit',
     'flowplayer',
     'bm.gallery',
+    'bm.signedauth',
+    'django_extensions',
 )
 
 try:
@@ -85,5 +87,7 @@ AUTHENTICATION_BACKENDS = (
     'django_auth_ldap.backend.LDAPBackend',
     'django.contrib.auth.backends.ModelBackend',
     )
+
+USE_LDAP = True
 
 from bm.gallery.local_settings import *

@@ -218,6 +218,17 @@ class WhitelistedIPManager(models.Manager):
         ip = request.META.get('REMOTE_ADDR', None)
         return self.ip_is_whitelisted(ip)
 
+    def whitelisted_user(self, request = None, ip = None):
+        """Returns the whitelisted user, else None"""
+        if not ip and request is not None:
+            ip = request.META.get('REMOTE_ADDR', None)
+
+        if ip is not None and ip:
+            white = self.filter(ip=ip)
+            if white.count() > 0:
+                return white[0].user
+        return None
+
     def ip_is_whitelisted(self, ip):
         """Tests whether the request's IP is whitelisted.
 
@@ -239,3 +250,5 @@ class WhitelistedIP(models.Model):
 
     objects = WhitelistedIPManager()
 
+    def __unicode__(self):
+        return u"%s: %s = %s" % (self.label, self.ip, self.user.username)

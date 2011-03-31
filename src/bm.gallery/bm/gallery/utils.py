@@ -2,13 +2,12 @@ from bm.gallery import models
 from django.core.cache import cache
 from django.core.paginator import Paginator
 from django.core.paginator import InvalidPage
-from django.db.models import Q
 
 
 class BetterPaginator(Paginator):
     """
     Stolen from http://www.davidcramer.net/code/466/pagination-in-django.html
-    
+
     An enhanced version of the QuerySetPaginator.
 
     >>> my_objects = BetterPaginator(queryset, 25)
@@ -50,6 +49,12 @@ class BetterPaginator(Paginator):
         }
         return context
 
+
+def encode_modlist_strings(modlist_map):
+    """Encodes any modlist_map unicode values into utf-8 strings."""
+    for key, value in modlist_map.items():
+        if type(value) is unicode:
+            modlist_map[key] = value.encode('utf-8')
 
 def media_klass_from_request(request):
     mediatype = request.GET.get('mediatype')
@@ -97,7 +102,7 @@ def year_choices():
         year_choices = [str(y[0]) for y in year_choices if y[0]]
         cache.set('year_choices', year_choices, 86400) # 1 day
     return year_choices
-    
+
 def category_choices():
     category_choices = cache.get('category_choices')
     if category_choices is None:
@@ -106,7 +111,7 @@ def category_choices():
                             for cat in category_choices]
         cache.set('category_choices', category_choices, 86400) # 1 day
     return category_choices
-    
+
 def apply_searchable_text_filter(queryset, search_string):
     """Expects a query set representing a set of MediaBase objects,
     returning a query set representing the original results filtered
