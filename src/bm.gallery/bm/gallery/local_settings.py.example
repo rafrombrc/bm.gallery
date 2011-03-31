@@ -1,6 +1,6 @@
 from django_auth_ldap.config import GroupOfUniqueNamesType
 from django_auth_ldap.config import LDAPSearch
-import ldap
+import ldap_util
 
 DEBUG = True
 TEMPLATE_DEBUG = True
