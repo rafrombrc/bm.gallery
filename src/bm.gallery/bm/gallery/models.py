@@ -7,17 +7,39 @@ from django.core.validators import email_re
 from django.db import models
 from django.db.models import signals
 from django.utils.translation import ugettext_lazy as _
+from imagekit.lib import Image
 from imagekit.models import ImageModel
 from imagekit.specs import Accessor
+from bm.gallery.watermark import add_watermark
+from bm.gallery.resize import resize_image
 from tagging import models as tagmodels
+import logging
 import os
 import shutil
+
+log = logging.getLogger(__name__)
 
 def get_media_path(instance, filename=''):
     return os.path.join(instance.mediadir, instance.owner.username, filename)
 
-def get_scaled_media_path(instance, filename=''):
-    return os.path.join('scaled', get_media_path(instance, filename))
+def get_scaled_media_path(instance, filename='', suffix=''):
+    if filename and filename.startswith('/'):
+        path, filename = os.path.split(filename)
+        path = path.split('/')
+        if path[-1] == instance.owner.username:
+            path = path[:-1]
+        if path[-1] == instance.mediadir:
+            path = path[:-1]
+        path = '/'.join(path)
+    else:
+        path = ''
+
+    if suffix and filename:
+        parts = os.path.splitext(filename)
+        parts = [parts[0], suffix, parts[1]]
+        filename = ''.join(parts)
+
+    return os.path.join(path, 'scaled', get_media_path(instance, filename))
 
 statuses = (('approved', _('Approved')),
             ('submitted', _('Submitted')),
@@ -135,7 +157,7 @@ class MediaBase(models.Model):
         """Makes explicit the contract that subclasses must provide
         a thumbnail_image value."""
         raise NotImplementedError
-        
+
     def get_thumbnail_image(self):
         """Retrieve 'thumbnail_image' value from the child class
         instance.  Subclasses must provide this value somewhere in the
@@ -208,10 +230,58 @@ class Photo(ImageBase):
     legacy_id = models.PositiveIntegerField(editable=False, null=True,
                                             db_index=True)
     in_press_gallery = models.BooleanField(default=False, db_index=True)
-    
+
     def __unicode__(self):
         return "Photo: %s/%s" % (self.owner.username, self.slug)
 
+    @property
+    def image_data(self):
+        """Get raw image data"""
+        return self.image.read()
+
+    def resized(self, h=0, w=0, footer=True, extended=True, crop=False, upscale=False):
+        """Get the image, resized and optionally watermarked"""
+        fn = self.image.file.name
+        suffix = ['_']
+        if not w:
+            suffix.append('0')
+        else:
+            suffix.append(str(w))
+        suffix.append('x')
+        if not h:
+            suffix.append('0')
+        else:
+            suffix.append(str(h))
+
+        if footer or extended:
+            suffix.append('-')
+            if footer:
+                suffix.append('w')
+            if extended:
+                suffix.append('e')
+
+        suffix = ''.join(suffix)
+        fn = get_scaled_media_path(self, filename=fn, suffix=suffix)
+        if os.path.exists(fn):
+            img = Image.open(fn)
+            log.debug('returning cached image: %s', fn)
+        else:
+            img = Image.open(self.image.file.name)
+            cw, ch = img.size
+            if h == 0 and w == 0:
+                h = ch
+                w = cw
+
+            if h != ch or w != cw:
+                img = resize_image(img, h, w, crop=crop, upscale=upscale)
+
+            if footer or extended:
+                img = add_watermark(img, footer=footer, extended=extended)
+
+            img.save(fn)
+            log.debug('Created and cached new image: %s', fn)
+
+        return img, fn
 
 class Artifact(ImageBase):
     """Burning Man Playa Artifact Gallery artifact object"""
@@ -271,4 +341,4 @@ def get_featured():
 def get_pending_contributors():
     pending_contributors = authmodels.User.objects
     pending_contributors = pending_contributors.exclude(groups__name='galleries')
-    return pending_contributors.order_by('id')    
+    return pending_contributors.order_by('id')

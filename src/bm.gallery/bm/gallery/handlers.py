@@ -3,6 +3,7 @@ from django.core.exceptions import PermissionDenied
 from django.http import Http404, HttpResponseNotFound, HttpResponseBadRequest, HttpResponse
 from piston.handler import BaseHandler
 from piston.utils import rc
+from bm.gallery.models import Photo
 import imghdr
 import logging
 log = logging.getLogger(__name__)
@@ -37,13 +38,84 @@ class MediaViewHandler(BaseHandler):
         log.debug('returning resource')
         return resource
 
+
 def media_view_image(request, mediatype, username, slug):
     """A view which returns the raw image"""
     resource = media_view(request, mediatype, username, slug, piston=True)
     if not resource:
         raise Http404()
 
-    data = resource.display.file.read()
-    imgtype = imghdr.what(resource.display.file.name, data)
+    if type(resource) is not Photo:
+        raise Http404('Not a photo')
+
+    options = _parse_media_args(request)
+
+    if options['h'] == 0 and options['w'] == 0 and options['footer'] and options['extended']:
+        do_resize = False
+    else:
+        do_resize = options['h'] > 0 or options['w'] > 0 or options['footer'] or options['extended']
+
+    if do_resize:
+        img, fn = resource.resized(**options)
+    else:
+        log.debug('returning base display file')
+        fn = resource.display.file.name
+
+    log.debug('media file: %s', fn)
+    data = open(fn,'r').read()
+
+    imgtype = imghdr.what(resource.image.file.name, data)
     return HttpResponse(data, mimetype='image/%s' % imgtype)
 
+
+def _parse_media_args(request):
+    options = {}
+
+    # now check for sizing & watermark options
+    h = request.GET.get('h',0)
+    w = request.GET.get('w',0)
+
+    if h:
+        try:
+            h = int(h)
+        except ValueError:
+            h = None
+
+    if w:
+        try:
+            w = int(w)
+        except ValueError:
+            w = None
+
+    options['h'] = h
+    options['w'] = w
+
+    watermark=request.GET.get('watermark','')
+    watermark = watermark.lower()
+    if watermark == 'none':
+        footer = False
+        extended = False
+    elif watermark == 'footer' or watermark == 'foot':
+        footer = True
+        extended=False
+    elif watermark == 'extended':
+        footer = False
+        extended = True
+    else:
+        footer = True
+        extended = True
+
+    options['footer'] = footer
+    options['extended'] = extended
+
+    crop = request.GET.get('crop','f')
+    crop = crop.lower() in ('1','y','t','true','yes')
+
+    options['crop'] = crop
+
+    upscale = request.GET.get('upscale','f')
+    upscale = upscale.lower() in ('1','y','t','true','yes')
+
+    options['upscale'] = upscale
+
+    return options
