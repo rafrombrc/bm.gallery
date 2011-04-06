@@ -3,12 +3,12 @@
 {% load qsify %}
 
 {% block content %}
-<!-- +++++ IN-PAGE NAV AND PAGE HEADER STARTS +++++ -->	
+<!-- +++++ IN-PAGE NAV AND PAGE HEADER STARTS +++++ -->
 
 <div id="page-title-nav">
-  
 
-  
+
+
 
   {% if total_count %}
   {% if press_gallery %}
@@ -26,18 +26,18 @@
     <h1>No results</h1>
   </div>
   {% endif %}{# <!-- total_count --> #}
-  
+
 </div>
-<!-- +++++ IN-PAGE NAV AND PAGE HEADER ENDS +++++ -->	
+<!-- +++++ IN-PAGE NAV AND PAGE HEADER ENDS +++++ -->
 <div id="tag-cont-press">
 {% if tag %}
   <em>Tagged: {{ tag }}</em> (<a href="{{ no_extra_filters_url }}">remove keyword filter</a>)
   {% endif %}
-  
+
   {% if owner %}
   <em>Contributed by: {{ owner.get_full_name }}</em> (<a href="{{ no_extra_filters_url }}">remove contributor filter</a>)
   {% endif %}
-  
+
   {% if press_gallery %}
   (<a href="{{ no_extra_filters_url }}">leave press gallery</a>)
   {% endif %}
@@ -45,7 +45,7 @@
 
 
 {% if total_count %}
-<!-- +++++ THUMBNAILS START +++++ -->	
+<!-- +++++ THUMBNAILS START +++++ -->
 <div class="thumbnail-lists">
   {% for result in page_results.object_list %}
   <div class="thumbnail-item">
@@ -62,9 +62,9 @@
           <br />
           <div class="thumb-text">
             <span class="thumbnail-name"><a href="{% qsify result.get_absolute_url %}#pastheader"
-           title="{{ result.title }}">{{ result.owner.first_name }} {{ result.owner.last_name }}</a></span>,
+           title="{{ result.title }}">{% ifequal result.mediadir "videos" %}{{ result.title }}{% else %}{{ result.owner.first_name }} {{ result.owner.last_name }}{% endifequal %}</a></span>{% ifnotequal result.mediadir "videos" %},
             <span class="thumbnail-date"><a href="{% qsify result.get_absolute_url %}#pastheader"
-           title="{{ result.title }}">{{ result.year }}</a></span>
+           title="{{ result.title }}">{{ result.year }}</a></span>{% endifnotequal %}
           </div>
 
       </div>
