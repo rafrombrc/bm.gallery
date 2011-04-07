@@ -10,6 +10,11 @@ import types
 import urllib
 import urlparse
 
+try:
+    parse_qs = urlparse.parse_qs
+except AttributeError:
+    from cgi import parse_qs
+
 log = logging.getLogger(__name__)
 
 class UserSeed(models.Model):
@@ -80,7 +85,7 @@ class UserKey(models.Model):
         """
         origurl = url
         parsed = urlparse.urlsplit(url)
-        qs = urlparse.parse_qs(parsed.query)
+        qs = parse_qs(parsed.query)
 
         if not seed:
             # first look at query
@@ -153,7 +158,7 @@ class UserKey(models.Model):
 
         origurl = url
         parsed = urlparse.urlsplit(url)
-        qs = urlparse.parse_qs(parsed.query)
+        qs = parse_qs(parsed.query)
 
         user = None
 

@@ -5,6 +5,12 @@ from django.test.client import Client
 from models import UserKey, WhitelistedIP
 import logging
 import urlparse
+
+try:
+    parse_qs = urlparse.parse_qs
+except AttributeError:
+    from cgi import parse_qs
+
 log = logging.getLogger('test')
 
 class UserKeyTest(TestCase):
@@ -36,7 +42,7 @@ class UserKeyTest(TestCase):
          url = 'http://localhost/test/'
          signed = k.sign_url(url, 'zzz')
          parsed = urlparse.urlsplit(signed)
-         qs = urlparse.parse_qs(parsed.query)
+         qs = parse_qs(parsed.query)
          self.assert_('seed' in qs)
          self.assert_('user' not in qs)
          self.assert_('sig' in qs)
@@ -50,7 +56,7 @@ class UserKeyTest(TestCase):
          url = 'http://localhost/test/?arg=this&arg2=that'
          signed = k.sign_url(url, '123')
          parsed = urlparse.urlsplit(signed)
-         qs = urlparse.parse_qs(parsed.query)
+         qs = parse_qs(parsed.query)
          self.assert_('seed' in qs)
          self.assert_('user' not in qs)
          self.assert_('sig' in qs)
@@ -76,7 +82,7 @@ class UserKeyTest(TestCase):
          url = 'http://localhost/test/'
          signed = k.sign_url(url, 'uuu')
          parsed = urlparse.urlsplit(signed)
-         qs = urlparse.parse_qs(parsed.query)
+         qs = parse_qs(parsed.query)
          self.assert_('seed' in qs)
          self.assert_('user' in qs)
          self.assertEqual(qs['user'][0], 'joe')
