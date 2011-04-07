@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 from bm.gallery import models
 from bm.gallery.forms import mediatype_forms, PasswordChangeForm, UserForm, ProfileForm, RegForm, MediaTypeForm, UploadFormSet
-from bm.gallery.ldap import get_ldap_connection, get_user_dn, ldap_add
+from bm.gallery.ldap_util import get_ldap_connection, get_user_dn, ldap_add
 from bm.gallery.media import image_types, mediatype_deplural
 from bm.gallery.utils import BetterPaginator, apply_searchable_text_filter, filter_args_from_request, media_klass_from_request
 from django.conf import settings
