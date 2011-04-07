@@ -35,6 +35,8 @@ if settings.DEBUG:
                              {'document_root': settings.PRESS_GALLERY_PATH,
                               'show_indexes': True}),
                             )
+    urlpatterns += patterns('',
+                            (r'^explore/', include('bm.signedauth.explore.urls')))
 
 urlpatterns += patterns('',
     (r'^feeds/tag/(?P<tag>.*)$', feeds.TagFeed()),

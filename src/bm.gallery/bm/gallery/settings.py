@@ -70,6 +70,7 @@ INSTALLED_APPS = (
     'bm.gallery',
     'bm.signedauth',
     'django_extensions',
+    'bm.signedauth.explore',
 )
 
 try:
