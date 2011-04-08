@@ -28,7 +28,7 @@ class UserAuthentication(object):
         return self.error == ''
 
     def challenge(self):
-        resp = HttpResponse("Authorization Required: %s" % self.error)
+        resp = HttpResponse("Authorization Required")
         resp.status_code = 401
         return resp
 

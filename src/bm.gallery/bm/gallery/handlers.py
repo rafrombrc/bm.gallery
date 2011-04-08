@@ -3,6 +3,7 @@ from django.core.exceptions import PermissionDenied
 from django.http import Http404, HttpResponseNotFound, HttpResponseBadRequest, HttpResponse
 from piston.handler import BaseHandler
 from piston.utils import rc
+from bm.signedauth.authentication import IPUserAuthentication
 from bm.gallery.models import Photo
 import imghdr
 import logging
@@ -41,6 +42,9 @@ class MediaViewHandler(BaseHandler):
 
 def media_view_image(request, mediatype, username, slug):
     """A view which returns the raw image"""
+    auth = IPUserAuthentication()
+    if not auth.is_authenticated(request):
+        return auth.challenge()
     resource = media_view(request, mediatype, username, slug, piston=True)
     if not resource:
         raise Http404()
