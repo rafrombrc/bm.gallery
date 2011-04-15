@@ -57,7 +57,7 @@ def media_view_image(request, mediatype, username, slug):
     if options['h'] == 0 and options['w'] == 0 and options['footer'] and options['extended']:
         do_resize = False
     else:
-        do_resize = options['h'] > 0 or options['w'] > 0 or options['footer'] or options['extended']
+        do_resize = options['footer'] or options['extended']
 
     if do_resize:
         img, fn = resource.resized(**options)
@@ -96,9 +96,9 @@ def _parse_media_args(request):
 
     watermark=request.GET.get('watermark','')
     watermark = watermark.lower()
-    if watermark == 'none':
-        footer = False
-        extended = False
+    if watermark == 'both':
+        footer = True
+        extended = True
     elif watermark == 'footer' or watermark == 'foot':
         footer = True
         extended=False
@@ -106,8 +106,8 @@ def _parse_media_args(request):
         footer = False
         extended = True
     else:
-        footer = True
-        extended = True
+        footer = False
+        extended = False
 
     options['footer'] = footer
     options['extended'] = extended
