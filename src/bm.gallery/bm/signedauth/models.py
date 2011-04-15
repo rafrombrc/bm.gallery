@@ -41,6 +41,35 @@ class UserKey(models.Model):
     def __unicode__(self):
         return "Userkey for %s=%s" % (self.user.username, self.key)
 
+    def _add_query_param(self, query, param, val):
+        """Add a querystring parameter to the url"""
+
+        last = '%s=%s' % (param, urllib.quote_plus(val))
+        if query:
+            return "%s&%s" % (query, last)
+        else:
+            return last
+
+    def _remove_query_param(self, query, param):
+        """Removes a query param, leaving the querystring in order"""
+        parts = query.split('&')
+        look = "%s=" % param
+        for ix in range(len(parts)-1, -1, -1):
+            if parts[ix].startswith(look):
+                del parts[ix]
+
+        return '&'.join(parts)
+
+    def _replace_query_param(self, query, param, val):
+        """Replaces a query param, leaving the querystring in order"""
+        parts = query.split('&')
+        look = "%s=" % param
+        for ix in range(0, len(parts)):
+            if parts[ix].startswith(look):
+                parts[ix] = "%s=%s" % (param, urllib.quote_plus(val))
+                break
+        return '&'.join(parts)
+
     def save(self, *args, **kwargs):
         """Create the random key and save the object."""
 
@@ -85,13 +114,15 @@ class UserKey(models.Model):
         """
         origurl = url
         parsed = urlparse.urlsplit(url)
-        qs = parse_qs(parsed.query)
+        query = parsed.query
+        qs = parse_qs(query)
+
 
         if not seed:
             # first look at query
             if 'seed' in qs:
-                seed = qs
-                del qs['seed']
+                seed = qs['seed']
+                query = self._remove_query_param(query,'seed')
             else:
                 timestamp = datetime.datetime.now()
                 timestamp = time.mktime(timestamp.timetuple())
@@ -104,22 +135,18 @@ class UserKey(models.Model):
                 if type(username) is types.ListType:
                     username = username[0]
                 if username != self.user.username:
-                    qs['user'] = self.user.username
+                    query = self._replace_query_param(query, 'user', self.user.username)
             else:
-                qs['user'] = self.user.username
+                query = self._add_query_param(query, 'user', self.user.username)
         else:
             if 'user' in qs:
-                del qs['user']
+                query = self._remove_query_param(query, 'user')
 
-        query = urllib.urlencode(qs, True)
         url = urlparse.urlunsplit((parsed.scheme, parsed.netloc, parsed.path, query, parsed.fragment))
 
         sig = self.sign(url, seed)
-        last = "seed=%s&sig=%s" % (urllib.quote_plus(seed), urllib.quote_plus(sig))
-        if query:
-            query = "%s&%s" % (query, last)
-        else:
-            query = last
+        query = self._add_query_param(query, 'seed', seed)
+        query = self._add_query_param(query, 'sid', sig)
 
         url = urlparse.urlunsplit((parsed.scheme, parsed.netloc, parsed.path, query, parsed.fragment))
         log.debug('Signed %s = %s', origurl, url)
@@ -158,7 +185,8 @@ class UserKey(models.Model):
 
         origurl = url
         parsed = urlparse.urlsplit(url)
-        qs = parse_qs(parsed.query)
+        query = parsed.query
+        qs = parse_qs(query)
 
         user = None
 
@@ -188,7 +216,8 @@ class UserKey(models.Model):
             log.debug('No sig in: %s', origurl)
             return (False, _('URL is not signed'))
 
-        seed = qs.pop('seed')
+        seed = qs['seed']
+        query = self._remove_query_param(query, 'seed')
         if type(seed) is types.ListType:
             seed = seed[0]
 
@@ -197,12 +226,12 @@ class UserKey(models.Model):
             log.debug('Disallowing seed reuse: %s', seed)
             return (False, _('Signature invalid - seed has been used'))
 
-        sig = qs.pop('sig')
+        sig = qs['sig']
+        query = self._remove_query_param(query, 'sig')
         if type(sig) is types.ListType:
             sig = sig[0]
         sig.lower()
 
-        query = urllib.urlencode(qs, True)
         url = urlparse.urlunsplit((parsed.scheme, parsed.netloc, parsed.path, query, parsed.fragment))
         if not self.verify(url, seed, sig):
             return (False, _('Signature does not validate'))

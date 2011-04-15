@@ -54,16 +54,7 @@ def media_view_image(request, mediatype, username, slug):
 
     options = _parse_media_args(request)
 
-    if options['h'] == 0 and options['w'] == 0 and options['footer'] and options['extended']:
-        do_resize = False
-    else:
-        do_resize = options['footer'] or options['extended']
-
-    if do_resize:
-        img, fn = resource.resized(**options)
-    else:
-        log.debug('returning base display file')
-        fn = resource.display.file.name
+    img, fn = resource.resized(**options)
 
     log.debug('media file: %s', fn)
     data = open(fn,'r').read()
