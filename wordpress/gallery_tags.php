@@ -27,12 +27,7 @@
 
 //Allow text widgets to use shortcodes
 add_filter('widget_text', 'do_shortcode');
-
-#$GALLERY_KEY = '6FwUn9c2X6MX2c3LH0EzQUqC4HyreC2xZe3DAaqTMiE=';
-#$GALLERY_USER = 'bkroeze';
-
-$GALLERY_KEY = '/Z+17Dql1Ar1sDXrpP9BZkBC4z+8xMcO+3GuLLAXCbU=';
-$GALLERY_USER = 'bruce';
+add_action( 'admin_init', 'register_bm_gallery_settings' );
 
 /**
  * Wordpress shorttag function returning a properly formatted url for a gallery image.
@@ -58,7 +53,7 @@ $GALLERY_USER = 'bruce';
  * - xml: Default false, if true then return xml metadata
  *
  *
- * Note that you cannot simultanesouly resize and get metadata with json or xml.
+ * Note that you cannot simultaneously resize and get metadata with json or xml.
  *
  *@param array $atts the shorttag attributes
  *@param string $content the url as returned when browsing the gallery.
@@ -147,14 +142,16 @@ add_shortcode('gallery', 'gallery_tag');
  * @return string url
  */
 function gallery_sign_url($apiurl, &$apiatts, $urlinfo) {
-  global $GALLERY_KEY, $GALLERY_USER;
+
+  $gallery_key = get_option('bm_gallery_key');
+  $gallery_user = get_option('bm_gallery_user');
 
   $apiurl = str_replace('//', '/', $apiurl);
-  if (!empty($GALLERY_KEY) && !empty($GALLERY_USER)) {
-    $apiatts[] = 'user=' . $GALLERY_USER;
+  if (!empty($gallery_key) && !empty($gallery_user)) {
+    $apiatts[] = 'user=' . $gallery_user;
     $apiurl .= '?' . implode('&',$apiatts);
     $seed = time();
-    $sig = md5($apiurl . $seed . $GALLERY_KEY);
+    $sig = md5($apiurl . $seed . $gallery_key);
     $apiurl .= "&seed=$seed&sig=$sig";
   }
   elseif (count($apiatts) > 0) {
@@ -167,3 +164,48 @@ function gallery_sign_url($apiurl, &$apiatts, $urlinfo) {
   $signed .= $apiurl;
   return $signed;
 }
+
+add_action('admin_menu', 'bm_gallery_create_menu');
+
+function bm_gallery_create_menu() {
+
+	//create new top-level menu
+	add_options_page('BM Gallery Settings', 'BM Gallery Settings', 'administrator', 'bm.gallery', 'bm_gallery_settings_page');
+}
+
+function register_bm_gallery_settings() {
+        register_setting('bm-gallery-opts', 'bm_gallery_user');
+        register_setting('bm-gallery-opts', 'bm_gallery_key');
+}
+
+function bm_gallery_settings_page() {
+?>
+<div class="wrap">
+<h2>BM Gallery</h2>
+<form method="post" action="options.php">
+  <?php $user = get_option('bm_gallery_user');
+  $key = get_option('bm_gallery_key');
+  ?>
+
+    <table class="form-table">
+        <tr valign="top">
+        <th scope="row">Gallery Username</th>
+        <td><input type="text" name="bm_gallery_user" value="<?php echo $user; ?>" /></td>
+        </tr>
+
+        <tr valign="top">
+        <th scope="row">Gallery User Key</th>
+        <td><input type="text" name="bm_gallery_key" value="<?php echo $key; ?>" /></td>
+        </tr>
+    </table>
+
+    <p class="submit">
+    <input type="submit" class="button-primary" value="<?php _e('Save Changes') ?>" />
+    </p>
+    <?php settings_fields( 'bm-gallery-opts' );
+     do_settings( 'bm-gallery-opts' ); ?>
+</form>
+</div>
+<?php }
+
+?>
