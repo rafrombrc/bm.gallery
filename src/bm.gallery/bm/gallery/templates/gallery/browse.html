@@ -1,6 +1,7 @@
 {% extends "gallery/base.html" %}
 {% load paginate %}
 {% load qsify %}
+{% load composit %}
 
 {% block content %}
 <!-- +++++ IN-PAGE NAV AND PAGE HEADER STARTS +++++ -->
@@ -62,7 +63,7 @@
           <br />
           <div class="thumb-text">
             <span class="thumbnail-name"><a href="{% qsify result.get_absolute_url %}#pastheader"
-           title="{{ result.title }}">{% ifequal result.mediadir "videos" %}{{ result.title }}{% else %}{{ result.owner.first_name }} {{ result.owner.last_name }}{% endifequal %}</a></span>{% ifnotequal result.mediadir "videos" %},
+           title="{{ result.title }}">{% ifequal result.mediadir "videos" %}{{ result.title|truncatesmart:40 }}{% else %}{{ result.owner.first_name }} {{ result.owner.last_name }}{% endifequal %}</a></span>{% ifnotequal result.mediadir "videos" %},
             <span class="thumbnail-date"><a href="{% qsify result.get_absolute_url %}#pastheader"
            title="{{ result.title }}">{{ result.year }}</a></span>{% endifnotequal %}
           </div>
