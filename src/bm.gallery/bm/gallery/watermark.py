@@ -39,6 +39,7 @@ def add_watermark(image, footer=True, extended=True):
 
     overlay = Image.new('RGBA', image.size, (0,0,0,0))
     if footer:
+        im_width, im_height = image.size
         copyright = "Copyright \xa9 by the Artist and Burning Man"
 
         draw = ImageDraw.Draw(overlay)
