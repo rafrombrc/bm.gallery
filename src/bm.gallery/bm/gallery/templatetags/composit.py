@@ -1,4 +1,5 @@
 from django import template
+from django.utils.safestring import mark_safe
 from django.template.defaultfilters import stringfilter
 
 register = template.Library()
@@ -74,4 +75,4 @@ def truncatesmart(value, limit=80):
     words = value.split(' ')[:-1]
 
     # Join the words and return
-    return ' '.join(words) + '&hellip;'
+    return mark_safe(' '.join(words) + '&hellip;')
