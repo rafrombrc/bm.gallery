@@ -38,6 +38,7 @@ class ExploreForm(forms.Form):
         url = data['url']
 
         self.signed = key.sign_url(url, seed=seed)
+        self.orig = url
 
 @login_required
 def explore(request):

@@ -286,3 +286,65 @@ class WhitelistedIP(models.Model):
 
     def __unicode__(self):
         return u"%s: %s = %s" % (self.label, self.ip, self.user.username)
+
+class WhitelistedDomainManager(models.Manager):
+    def request_is_whitelisted(self, request):
+        """Tests whether the request's domain is whitelisted.
+
+        Args:
+            request: A django Request object
+
+        Returns:
+            Boolean
+        """
+
+        domain = request.META.get('HTTP_REFERER', None)
+        return self.domain_is_whitelisted(domain)
+
+    def whitelisted_user(self, request = None, domain = None):
+        """Returns the whitelisted user, else None"""
+        if not domain and request is not None:
+            domain = request.META.get('HTTP_REFERER', None)
+
+        url = urlparse.urlsplit(domain)
+        domain = url.netloc
+        domain = domain.split(':')[0]
+        # now get just the last part, if needed
+        parts = domain.split('.')
+        if len(parts) > 2:
+            subdomain = '.'.join(parts[1:])
+        else:
+            subdomain = 'INVALID'
+
+        log.debug('domain: %s, subdomain: %s', domain, subdomain);
+
+        if domain is not None and domain:
+            white = self.filter(models.Q(domain=domain) | models.Q(domain=subdomain, subdomains=True))
+            if white.count() > 0:
+                return white[0].user
+        return None
+
+    def domain_is_whitelisted(self, domain):
+        """Tests whether the request's domain is whitelisted.
+
+        Args:
+            domain: a string representing the domain to be tested
+
+        Returns:
+            Boolean
+        """
+        return domain is not None and domain and self.filter(domain = domain).count() > 0
+
+class WhitelistedDomain(models.Model):
+    """A domain or group of domains that don't have to explicitly
+    provide signatures to be authenticated at the attached user."""
+
+    label = models.CharField(_("Label"), max_length=30)
+    domain = models.CharField(_("Domain name"), db_index=True, max_length=100)
+    subdomains = models.BooleanField(_("Include Subdomains?"), default=False)
+    user = models.ForeignKey(User)
+
+    objects = WhitelistedDomainManager()
+
+    def __unicode__(self):
+        return u"%s: %s = %s" % (self.label, self.domain, self.user.username)

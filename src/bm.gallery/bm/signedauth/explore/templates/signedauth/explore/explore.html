@@ -28,6 +28,7 @@ width: 400px;
 {% if form.signed %}
 <h2>Signed Result</h2>
 <p><a href="{{ form.signed }}" target="_BLANK">{{ form.signed }}</a></p>
+<p>(unsigned referral link) <a href="{{ form.orig }}">{{ form.orig }}</a></p>
 {% endif %}
 
 </body>

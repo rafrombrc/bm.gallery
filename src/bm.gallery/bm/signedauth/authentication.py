@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User, AnonymousUser
 from django.http import HttpResponse
-from models import UserKey, WhitelistedIP
+from models import UserKey, WhitelistedIP, WhitelistedDomain
 import logging
 
 log = logging.getLogger(__name__)
@@ -47,6 +47,12 @@ class IPUserAuthentication(UserAuthentication):
         if user is not None:
             request.user = user
             return True
+        else:
+            user = WhitelistedDomain.objects.whitelisted_user(request=request)
+        if user is not None:
+            request.user = User
+            return True
+
         return super(IPUserAuthentication, self).is_authenticated(request)
 
     def __repr__(self):

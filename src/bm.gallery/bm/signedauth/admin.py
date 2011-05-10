@@ -1,7 +1,7 @@
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
 from django.contrib import admin
-from bm.signedauth.models import UserKey, WhitelistedIP
+from bm.signedauth.models import UserKey, WhitelistedIP, WhitelistedDomain
 
 class UserKey_Inline(admin.StackedInline):
     model = UserKey
@@ -11,9 +11,14 @@ class UserKey_Inline(admin.StackedInline):
 class WhitelistedIPAdmin(admin.ModelAdmin):
     list_fields = ('label','ip')
 
+class WhitelistedDomainAdmin(admin.ModelAdmin):
+    list_fields = ('label','ip')
+
+
 admin.site.unregister(User)
 
 UserAdmin.inlines = (UserKey_Inline,)
 
 admin.site.register(User, UserAdmin)
 admin.site.register(WhitelistedIP, WhitelistedIPAdmin)
+admin.site.register(WhitelistedDomain, WhitelistedDomainAdmin)
