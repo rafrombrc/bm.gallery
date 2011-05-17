@@ -148,7 +148,7 @@ class Signature(object):
         if self._valid is None or self._last_url != url:
             self._last_url = url
 
-            if self.user.is_anonymous():
+            if self.user().is_anonymous():
                 u = None
             else:
                 u = self.user
