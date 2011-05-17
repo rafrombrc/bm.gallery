@@ -306,6 +306,9 @@ class WhitelistedDomainManager(models.Manager):
         if not domain and request is not None:
             domain = request.META.get('HTTP_REFERER', None)
 
+        if not domain:
+            return None
+
         url = urlparse.urlsplit(domain)
         domain = url.netloc
         domain = domain.split(':')[0]
@@ -315,8 +318,6 @@ class WhitelistedDomainManager(models.Manager):
             subdomain = '.'.join(parts[1:])
         else:
             subdomain = 'INVALID'
-
-        log.debug('domain: %s, subdomain: %s', domain, subdomain);
 
         if domain is not None and domain:
             white = self.filter(models.Q(domain=domain) | models.Q(domain=subdomain, subdomains=True))
