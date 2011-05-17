@@ -465,7 +465,9 @@ def media_view(request, mediatype, username, slug, piston=False):
     # It's fairly straightforward, I think.  Still, edit with care,
     # lest you end up exposing pages that aren't supposed to be
     # exposed.
+    log.debug('checking perm for %s', request.user)
     can_review = request.user.has_perm('gallery.can_review')
+    log.debug('checked perm: %s', can_review)
     if not status:
         # if there aren't any other search parameters, don't use a
         # search context

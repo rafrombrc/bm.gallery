@@ -17,10 +17,10 @@ class UserAuthentication(object):
         self.error = ''
         sig = None
         sig = Signature(request)
-        valid = sig.valid
+        valid = sig.valid()
 
         log.debug('auth result: %s, %s', valid, sig.error)
-        if sig.valid:
+        if valid:
             request.user = sig.user
         else:
             self.error = sig.error
@@ -45,12 +45,14 @@ class IPUserAuthentication(UserAuthentication):
 
         user = WhitelistedIP.objects.whitelisted_user(request=request)
         if user is not None:
-            request.user = user
-            return True
+            log.debug('got whitelisted user from ip: %s', user)
         else:
             user = WhitelistedDomain.objects.whitelisted_user(request=request)
+            if user is not None:
+                log.debug('got whitelisted user from domain: %s', user)
+
         if user is not None:
-            request.user = User
+            request.user = user
             return True
 
         return super(IPUserAuthentication, self).is_authenticated(request)
@@ -123,7 +125,6 @@ class Signature(object):
 
         return self._user
 
-    @property
     def valid(self, url=None):
         """Return the "valid" status of the Signature, caching result.
 
@@ -148,7 +149,7 @@ class Signature(object):
         if self._valid is None or self._last_url != url:
             self._last_url = url
 
-            if self.user().is_anonymous():
+            if self.user.is_anonymous():
                 u = None
             else:
                 u = self.user
