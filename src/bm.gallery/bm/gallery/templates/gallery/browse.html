@@ -62,12 +62,10 @@
           </div>
           <br />
           <div class="thumb-text">
-            {% with result.get_child_instance as concrete %}
             <span class="thumbnail-name"><a href="{% qsify result.get_absolute_url %}#pastheader"
-           title="{{ result.title }}">{% ifequal concrete.mediadir "videos" %}{{ result.title|truncatesmart:40 }}{% else %}{{ result.owner.first_name }} {{ result.owner.last_name }}{% endifequal %}</a></span>{% ifnotequal concrete.mediadir "videos" %},
+           title="{{ result.title }}">{% ifequal result.child_attrpath "video" %}{{ result.title|truncatesmart:40 }}{% else %}{{ result.owner.first_name }} {{ result.owner.last_name }}{% endifequal %}</a></span>{% ifnotequal result.child_attrpath "video" %},
             <span class="thumbnail-date"><a href="{% qsify result.get_absolute_url %}#pastheader"
            title="{{ result.title }}">{{ result.year }}</a></span>{% endifnotequal %}
-            {% endwith %}
           </div>
 
       </div>
