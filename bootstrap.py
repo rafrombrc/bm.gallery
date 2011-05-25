@@ -93,6 +93,10 @@ if USE_DISTRIBUTE:
 else:
     requirement = 'setuptools'
 
+for dirname in ['eggs', 'downloads']:
+    if not os.path.exists(dirname):
+        os.mkdir(dirname)
+
 if is_jython:
     import subprocess
 
@@ -119,3 +123,4 @@ ws.require('zc.buildout' + VERSION)
 import zc.buildout.buildout
 zc.buildout.buildout.main(args)
 shutil.rmtree(tmpeggs)
+
