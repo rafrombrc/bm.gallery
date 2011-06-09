@@ -40,6 +40,23 @@ class MediaViewHandler(BaseHandler):
         return resource
 
 
+def media_image_caption(request, mediatype, username, slug):
+    """A view which returns the raw image caption"""
+    log.debug('getting caption .................................... %s %s %s', mediatype, username, slug)
+    auth = IPUserAuthentication()
+    if not auth.is_authenticated(request):
+        return auth.challenge()
+    resource = media_view(request, mediatype, username, slug, piston=True)
+    log.debug('got resource: %s', resource)
+    if not resource:
+        raise Http404()
+
+    if type(resource) is not Photo:
+        raise Http404('Not a photo')
+
+    log.debug('returning caption: %s', resource.title)
+    return HttpResponse(resource.title, mimetype='text/plain')
+
 def media_view_image(request, mediatype, username, slug):
     """A view which returns the raw image"""
     auth = IPUserAuthentication()

@@ -51,6 +51,8 @@ add_action( 'admin_init', 'register_bm_gallery_settings' );
  * - img: Default true, if not json or xml. If true, wrap the image in an img tag
  * - json: Default false, if true then return json metadata
  * - xml: Default false, if true then return xml metadata
+ * - align: left|right|center
+ * - caption: true|false
  *
  *
  * Note that you cannot simultaneously resize and get metadata with json or xml.
@@ -71,7 +73,9 @@ function gallery_tag($atts, $content=null) {
           'json' => 'f',
           'xml' => 'f',
           'img' => 'true',
-          'url' => $content),
+          'url' => $content,
+          'caption' => '',
+          'align' => ''),
     $atts);
 
   extract($processed);
@@ -126,9 +130,52 @@ function gallery_tag($atts, $content=null) {
 
   $apiurl = gallery_sign_url($apiurl, $apiatts, $urlinfo);
   if ($img == 'true' || $img == 'yes') {
-    return "<img src='$apiurl' />";
+    $ret = "<img src='$apiurl' />";
   }
-  return $apiurl;
+  else {
+    $ret = $apiurl;
+  }
+
+  $has_capt = ($caption=='true' || $caption=='yes');
+  if (!empty($align) || $has_capt) {
+    $classes = array();
+    if (!empty($align)) {
+      $classes[] = "align$align";
+    }
+    if ($has_capt) {
+      $classes[] = 'wp-caption';
+    }
+    $cl = implode(' ', $classes);
+    $ret = "<div class='$cl'>$ret";
+
+
+    if ($has_capt) {
+
+      // go get caption, awkward
+      $apiurl2 = '/api'. $urlinfo['path'] . '/caption';
+
+      $apiatts2 = array();
+      $apiurl2 = gallery_sign_url($apiurl2, $apiatts2, $urlinfo);
+      $ch = curl_init();
+
+      // set url
+      curl_setopt($ch, CURLOPT_URL, $apiurl2);
+
+      //return the transfer as a string
+      curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+
+      // $output contains the output string
+      $output = curl_exec($ch);
+
+      // close curl resource to free up system resources
+      curl_close($ch);
+
+      $ret .= '<p class="wp-caption">' . $output . '</p>';
+    }
+    $ret .= '</div>';
+  }
+
+  return $ret;
 }
 
 add_shortcode('gallery', 'gallery_tag');

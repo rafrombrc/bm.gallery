@@ -543,6 +543,7 @@ def media_view(request, mediatype, username, slug, piston=False):
 
     # for piston calls, we just want the resource, no template rendering needed.
     if piston:
+        log.debug('returning piston resource: %s', resource)
         return resource
 
     # we will reverse, but not yet
