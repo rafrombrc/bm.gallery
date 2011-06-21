@@ -53,7 +53,9 @@ add_action( 'admin_init', 'register_bm_gallery_settings' );
  * - xml: Default false, if true then return xml metadata
  * - align: left|right|center
  * - caption: true|false
- *
+ * - link: true|false|full (default false)
+ *         if "true", generates a link to the media gallery,
+ *         if "full", generates a link to the full-size image
  *
  * Note that you cannot simultaneously resize and get metadata with json or xml.
  *
@@ -75,7 +77,8 @@ function gallery_tag($atts, $content=null) {
           'img' => 'true',
           'url' => $content,
           'caption' => '',
-          'align' => ''),
+          'align' => '',
+          'link' => 'f'),
     $atts);
 
   extract($processed);
@@ -131,6 +134,18 @@ function gallery_tag($atts, $content=null) {
   $apiurl = gallery_sign_url($apiurl, $apiatts, $urlinfo);
   if ($img == 'true' || $img == 'yes') {
     $ret = "<img src='$apiurl' />";
+
+    if ($link == 'true' || $link == 'full') {
+      if ($link == 'true') {
+        $ret = "<a href='$url'>$ret</a>";
+      }
+      else {
+        $fullatts = array();
+        $fullurl = '/api' . $urlinfo['path'] . '/' . $action;
+        $fullurl = gallery_sign_url($fullurl, $fullatts, $urlinfo);
+        $ret = "<a href='$fullurl'>$ret</a>";
+      }
+    }
   }
   else {
     $ret = $apiurl;
@@ -141,6 +156,7 @@ function gallery_tag($atts, $content=null) {
     $classes = array();
     if (!empty($align)) {
       $classes[] = "align$align";
+      $classes[] = "images$align";
     }
     if ($has_capt) {
       $classes[] = 'wp-caption';
@@ -198,6 +214,8 @@ function gallery_sign_url($apiurl, &$apiatts, $urlinfo) {
     $apiatts[] = 'user=' . $gallery_user;
     $apiurl .= '?' . implode('&',$apiatts);
     $seed = time();
+    $n = rand(10e16, 10e20);
+    $seed .= base_convert($n, 10, 36);
     $sig = md5($apiurl . $seed . $gallery_key);
     $apiurl .= "&seed=$seed&sig=$sig";
   }
