@@ -3,7 +3,7 @@ from django.core.exceptions import PermissionDenied
 from django.http import Http404, HttpResponseNotFound, HttpResponseBadRequest, HttpResponse
 from piston.handler import BaseHandler
 from piston.utils import rc
-from bm.signedauth.authentication import IPUserAuthentication
+from signedauth.authentication import IPUserAuthentication
 from bm.gallery.models import Photo
 import imghdr
 import logging
@@ -17,6 +17,9 @@ class MediaViewHandler(BaseHandler):
         log.debug('MediaViewHandler read: %s, %s, %s', mediatype, username, slug)
         try:
             resource = media_view(request, mediatype, username, slug, piston=True)
+            for field in ('_state','_owner_cache','child_attrpath'):
+                if hasattr(resource, field):
+                    setattr(resource, field, None)
             log.debug('got resource: %s', resource)
 
         except Http404:

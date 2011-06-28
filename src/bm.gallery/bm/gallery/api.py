@@ -1,4 +1,4 @@
-from bm.signedauth.authentication import IPUserAuthentication
+from signedauth.authentication import IPUserAuthentication
 from django.conf.urls.defaults import patterns
 from piston.resource import Resource
 from handlers import MediaViewHandler
