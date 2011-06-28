@@ -4,12 +4,13 @@ from optparse import make_option
 
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
-
+from django.db import connection, transaction
 from django.conf import settings
 
 from bm.gallery.models import Photo, Artifact, Profile
 from bm.gallery.ldap_util import get_user_dn, ldap_delete
 
+from bm.gallery import views
 
 class Command(BaseCommand):
     args = '<canonical_user> <obsolete_user> [--readonly]'
@@ -130,6 +131,11 @@ class Command(BaseCommand):
         # Change image metadata in Django
         image.image.upload_to = subpath + new_filename
         image.owner = newuser
+        # example:    photos
+        new_image_path_for_imagefield = '%s/%s/%s' % (os.path.split(images_base)[1], newuser.username, new_filename) 
+
+        # Django doesn't let us change the image path via the ImageField interface,
+        # and we've already moved the file in the OS, so we'll just change the value manually.
 
         if isinstance(image, Photo) and image.in_press_gallery:
             self.change_image_in_press_gallery(old_filename, new_filename)
@@ -139,6 +145,7 @@ class Command(BaseCommand):
         # We're done prep, now commit the actual moves.
         if not self.readonly:
             image.save()
+            self.change_db_filename(image.id, new_image_path_for_imagefield)
             # Note: os.renames will create intermediate dirs if they don't
             # exist.
             os.renames(image.image.path, new_file_path)
@@ -152,3 +159,10 @@ class Command(BaseCommand):
 
         if not self.readonly:
             os.renames(old_path, new_path)
+
+
+    def change_db_filename(self, image_id, new_image_path):
+      cursor = connection.cursor()
+      cursor.execute("UPDATE gallery_imagebase SET image = '%s' WHERE mediabase_ptr_id = %d" % (new_image_path, image_id))
+      transaction.commit_unless_managed()
+
