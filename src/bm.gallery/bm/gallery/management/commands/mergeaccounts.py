@@ -10,7 +10,8 @@ from django.conf import settings
 from bm.gallery.models import Photo, Artifact, Profile
 from bm.gallery.ldap_util import get_user_dn, ldap_delete
 
-from bm.gallery import views
+from bm.gallery import views  # needed for ldap config.. side effects, ugh
+
 
 class Command(BaseCommand):
     args = '<canonical_user> <obsolete_user> [--readonly]'
