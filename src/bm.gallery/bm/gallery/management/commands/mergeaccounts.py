@@ -152,6 +152,13 @@ class Command(BaseCommand):
             # Note: os.renames will create intermediate dirs if they don't
             # exist.
             os.renames(image.image.path, new_file_path)
+            # generate the scaled images, cargo-culted from ImageKit's ikflush
+            # command
+            model = image.__class__
+            for spec in model._ik.specs:
+                prop = getattr(image, spec.name(), None)
+                if prop is not None and spec.pre_cache:
+                    prop._create()
 
     def change_image_in_press_gallery(self, old_filename, new_filename):
         old_path = settings.PRESS_GALLERY_PATH + old_filename
