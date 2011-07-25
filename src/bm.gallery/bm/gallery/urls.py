@@ -36,7 +36,7 @@ if settings.DEBUG:
                               'show_indexes': True}),
                             )
     urlpatterns += patterns('',
-                            (r'^explore/', include('bm.signedauth.explore.urls')))
+                            (r'^explore/', include('signedauth.explore.urls')))
 
 urlpatterns += patterns('',
     (r'^feeds/tag/(?P<tag>.*)$', feeds.TagFeed()),

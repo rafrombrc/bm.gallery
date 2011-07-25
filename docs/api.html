@@ -1,0 +1,554 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.7: http://docutils.sourceforge.net/" />
+<title>Burning Man Media Gallery API Documentation</title>
+<style type="text/css">
+
+/*
+:Author: David Goodger (goodger@python.org)
+:Id: $Id: html4css1.css 6253 2010-03-02 00:24:53Z milde $
+:Copyright: This stylesheet has been placed in the public domain.
+
+Default cascading style sheet for the HTML output of Docutils.
+
+See http://docutils.sf.net/docs/howto/html-stylesheets.html for how to
+customize this style sheet.
+*/
+
+/* used to remove borders from tables and images */
+.borderless, table.borderless td, table.borderless th {
+  border: 0 }
+
+table.borderless td, table.borderless th {
+  /* Override padding for "table.docutils td" with "! important".
+     The right padding separates the table cells. */
+  padding: 0 0.5em 0 0 ! important }
+
+.first {
+  /* Override more specific margin styles with "! important". */
+  margin-top: 0 ! important }
+
+.last, .with-subtitle {
+  margin-bottom: 0 ! important }
+
+.hidden {
+  display: none }
+
+a.toc-backref {
+  text-decoration: none ;
+  color: black }
+
+blockquote.epigraph {
+  margin: 2em 5em ; }
+
+dl.docutils dd {
+  margin-bottom: 0.5em }
+
+/* Uncomment (and remove this text!) to get bold-faced definition list terms
+dl.docutils dt {
+  font-weight: bold }
+*/
+
+div.abstract {
+  margin: 2em 5em }
+
+div.abstract p.topic-title {
+  font-weight: bold ;
+  text-align: center }
+
+div.admonition, div.attention, div.caution, div.danger, div.error,
+div.hint, div.important, div.note, div.tip, div.warning {
+  margin: 2em ;
+  border: medium outset ;
+  padding: 1em }
+
+div.admonition p.admonition-title, div.hint p.admonition-title,
+div.important p.admonition-title, div.note p.admonition-title,
+div.tip p.admonition-title {
+  font-weight: bold ;
+  font-family: sans-serif }
+
+div.attention p.admonition-title, div.caution p.admonition-title,
+div.danger p.admonition-title, div.error p.admonition-title,
+div.warning p.admonition-title {
+  color: red ;
+  font-weight: bold ;
+  font-family: sans-serif }
+
+/* Uncomment (and remove this text!) to get reduced vertical space in
+   compound paragraphs.
+div.compound .compound-first, div.compound .compound-middle {
+  margin-bottom: 0.5em }
+
+div.compound .compound-last, div.compound .compound-middle {
+  margin-top: 0.5em }
+*/
+
+div.dedication {
+  margin: 2em 5em ;
+  text-align: center ;
+  font-style: italic }
+
+div.dedication p.topic-title {
+  font-weight: bold ;
+  font-style: normal }
+
+div.figure {
+  margin-left: 2em ;
+  margin-right: 2em }
+
+div.footer, div.header {
+  clear: both;
+  font-size: smaller }
+
+div.line-block {
+  display: block ;
+  margin-top: 1em ;
+  margin-bottom: 1em }
+
+div.line-block div.line-block {
+  margin-top: 0 ;
+  margin-bottom: 0 ;
+  margin-left: 1.5em }
+
+div.sidebar {
+  margin: 0 0 0.5em 1em ;
+  border: medium outset ;
+  padding: 1em ;
+  background-color: #ffffee ;
+  width: 40% ;
+  float: right ;
+  clear: right }
+
+div.sidebar p.rubric {
+  font-family: sans-serif ;
+  font-size: medium }
+
+div.system-messages {
+  margin: 5em }
+
+div.system-messages h1 {
+  color: red }
+
+div.system-message {
+  border: medium outset ;
+  padding: 1em }
+
+div.system-message p.system-message-title {
+  color: red ;
+  font-weight: bold }
+
+div.topic {
+  margin: 2em }
+
+h1.section-subtitle, h2.section-subtitle, h3.section-subtitle,
+h4.section-subtitle, h5.section-subtitle, h6.section-subtitle {
+  margin-top: 0.4em }
+
+h1.title {
+  text-align: center }
+
+h2.subtitle {
+  text-align: center }
+
+hr.docutils {
+  width: 75% }
+
+img.align-left, .figure.align-left, object.align-left {
+  clear: left ;
+  float: left ;
+  margin-right: 1em }
+
+img.align-right, .figure.align-right, object.align-right {
+  clear: right ;
+  float: right ;
+  margin-left: 1em }
+
+img.align-center, .figure.align-center, object.align-center {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.align-left {
+  text-align: left }
+
+.align-center {
+  clear: both ;
+  text-align: center }
+
+.align-right {
+  text-align: right }
+
+/* reset inner alignment in figures */
+div.align-right {
+  text-align: left }
+
+/* div.align-center * { */
+/*   text-align: left } */
+
+ol.simple, ul.simple {
+  margin-bottom: 1em }
+
+ol.arabic {
+  list-style: decimal }
+
+ol.loweralpha {
+  list-style: lower-alpha }
+
+ol.upperalpha {
+  list-style: upper-alpha }
+
+ol.lowerroman {
+  list-style: lower-roman }
+
+ol.upperroman {
+  list-style: upper-roman }
+
+p.attribution {
+  text-align: right ;
+  margin-left: 50% }
+
+p.caption {
+  font-style: italic }
+
+p.credits {
+  font-style: italic ;
+  font-size: smaller }
+
+p.label {
+  white-space: nowrap }
+
+p.rubric {
+  font-weight: bold ;
+  font-size: larger ;
+  color: maroon ;
+  text-align: center }
+
+p.sidebar-title {
+  font-family: sans-serif ;
+  font-weight: bold ;
+  font-size: larger }
+
+p.sidebar-subtitle {
+  font-family: sans-serif ;
+  font-weight: bold }
+
+p.topic-title {
+  font-weight: bold }
+
+pre.address {
+  margin-bottom: 0 ;
+  margin-top: 0 ;
+  font: inherit }
+
+pre.literal-block, pre.doctest-block {
+  margin-left: 2em ;
+  margin-right: 2em }
+
+span.classifier {
+  font-family: sans-serif ;
+  font-style: oblique }
+
+span.classifier-delimiter {
+  font-family: sans-serif ;
+  font-weight: bold }
+
+span.interpreted {
+  font-family: sans-serif }
+
+span.option {
+  white-space: nowrap }
+
+span.pre {
+  white-space: pre }
+
+span.problematic {
+  color: red }
+
+span.section-subtitle {
+  /* font-size relative to parent (h1..h6 element) */
+  font-size: 80% }
+
+table.citation {
+  border-left: solid 1px gray;
+  margin-left: 1px }
+
+table.docinfo {
+  margin: 2em 4em }
+
+table.docutils {
+  margin-top: 0.5em ;
+  margin-bottom: 0.5em }
+
+table.footnote {
+  border-left: solid 1px black;
+  margin-left: 1px }
+
+table.docutils td, table.docutils th,
+table.docinfo td, table.docinfo th {
+  padding-left: 0.5em ;
+  padding-right: 0.5em ;
+  vertical-align: top }
+
+table.docutils th.field-name, table.docinfo th.docinfo-name {
+  font-weight: bold ;
+  text-align: left ;
+  white-space: nowrap ;
+  padding-left: 0 }
+
+h1 tt.docutils, h2 tt.docutils, h3 tt.docutils,
+h4 tt.docutils, h5 tt.docutils, h6 tt.docutils {
+  font-size: 100% }
+
+ul.auto-toc {
+  list-style-type: none }
+
+</style>
+</head>
+<body>
+<div class="document" id="burning-man-media-gallery-api-documentation">
+<h1 class="title">Burning Man Media Gallery API Documentation</h1>
+
+<div class="section" id="api-overview">
+<h1>API Overview</h1>
+<p>The Burning Man Media Gallery API is free for you to use and build with.</p>
+<p>The API currently supports two formats, XML and JSON. By default it will return JSON. If you wish to consume XML, pass the API the keypair format=xml. If you want JSONP, provide the keypair callback=myclbk.</p>
+</div>
+<div class="section" id="methods">
+<h1>Methods</h1>
+<p>The API supports the following methods to receive Media Gallery data.  Note that each example must have authentication as described below.</p>
+<p><strong>Retrieve Image</strong></p>
+<blockquote>
+<p>This API method allows several options to be embedded in the query.  In each case, to use the option, simply add it to the query before calculating the signature (see Authentication below for how to do that):</p>
+<ul class="simple">
+<li><strong>height</strong>: parameter name: &quot;h&quot;, default=0, if greater than 0 it will resize the image to be no larger than the specified height in pixels, keeping the same aspect ratio.</li>
+<li><strong>width</strong>: parameter name: &quot;w&quot;, default=0, if greater than 0 it will resize the image to be no wider than the specified height in pixels, keeping the same aspect ratio.  If both height and width are greater than 0, then a &quot;best fit&quot; resize will be made to fit the image inside the box defined by both sizes.</li>
+<li><strong>watermark</strong>: paremeter name: &quot;watermark&quot;, default=&quot;false&quot;, options=&quot;both|footer|extended|false&quot;.  This controls whether which copyright watermarks are placed on the image.  &quot;footer&quot; causes an overlay over the bottom part of the image, &quot;extended&quot; causes the full copyright disclaimer to be embedded below the image.</li>
+<li><strong>crop</strong>: parameter name: &quot;crop&quot;, options=&quot;true|false&quot;, default=&quot;false&quot;, if true it causes the resize to be cropped at the height and width specified instead of resizing the whole thing.</li>
+<li><strong>upscale</strong>: parameter name: &quot;crop&quot;, options=&quot;true|false&quot;, default=&quot;false&quot;, if true it causes the resize to allow the image to be scaled larger than the original.</li>
+</ul>
+<p>Simple Example</p>
+<blockquote>
+<tt class="docutils literal"><span class="pre">http://galleries.burningman.com/api/photos/scottlondon/scottlondon.41818/image?AUTHENTICATION</span></tt></blockquote>
+<p>Simple Example Response</p>
+<blockquote>
+<em>raw image data</em> at full size</blockquote>
+<p>This data can be used as the target of an &lt;img&gt; tag, for example:</p>
+<p><tt class="docutils literal">&lt;img <span class="pre">src=&quot;http://galleries.burningman.com/api/photos/scottlondon/scottlondon.41818/image?AUTHENTICATION&quot;&gt;</span></tt></p>
+<p>Resized Example</p>
+<blockquote>
+<tt class="docutils literal"><span class="pre">http://galleries.burningman.com/api/photos/scottlondon/scottlondon.41818/image?AUTHENTICATION&amp;h=400&amp;w=400</span></tt></blockquote>
+<p>Resized Example Response</p>
+<blockquote>
+<em>raw image data</em> resized to fit in a 400x400 box</blockquote>
+<p>Resized with a Watermark Example:</p>
+<blockquote>
+<tt class="docutils literal"><span class="pre">http://galleries.burningman.com/api/photos/scottlondon/scottlondon.41818/image?AUTHENTICATION&amp;h=600&amp;watermark=extended</span></tt></blockquote>
+<p>Resized with a Watermark Example Response</p>
+<blockquote>
+<em>raw image data</em> resized to be no more than 600 pixels high, including copyright text at the bottom of the image.</blockquote>
+</blockquote>
+<p><strong>Retrieve Image Caption</strong></p>
+<blockquote>
+<p>Example</p>
+<blockquote>
+<tt class="docutils literal"><span class="pre">http://galleries.burningman.com/api/photos/scottlondon/scottlondon.41818/caption?AUTHENTICATION</span></tt></blockquote>
+<p>Example Response</p>
+<blockquote>
+<tt class="docutils literal">&quot;The Man Under a Red Sky&quot;</tt></blockquote>
+</blockquote>
+<p><strong>Retrieve Image Metadata as JSON</strong></p>
+<blockquote>
+<p>Example</p>
+<blockquote>
+<tt class="docutils literal"><span class="pre">http://galleries.burningman.com/api/photos/scottlondon/scottlondon.41818/json?AUTHENTICATION</span></tt></blockquote>
+<p>Example Response:</p>
+<pre class="literal-block">
+{
+ &quot;date_taken&quot;: null,
+ &quot;image&quot;: &quot;photos/scottlondon/41418.jpg&quot;,
+ &quot;year&quot;: 2010,
+ &quot;_state&quot;: null,
+ &quot;height&quot;: 1536,
+ &quot;in_press_gallery&quot;: false,
+ &quot;moderator_id&quot;: null,
+ &quot;full_image_available&quot;: false,
+ &quot;id&quot;: 2,
+ &quot;date_approved&quot;: null,
+ &quot;view_count&quot;: 40,
+ &quot;title&quot;: &quot;The Man Under a Red Sky&quot;,
+ &quot;width&quot;: 1024,
+ &quot;legacy_id&quot;: null,
+ &quot;child_attrpath&quot;: null,
+ &quot;status&quot;: &quot;submitted&quot;,
+ &quot;date_submitted&quot;: null,
+ &quot;mediabase_ptr_id&quot;: 2,
+ &quot;imagebase_ptr_id&quot;: 2,
+ &quot;date_added&quot;: &quot;2011-03-31 10:15:45&quot;,
+ &quot;slug&quot;: &quot;bruce.2&quot;,
+ &quot;_owner_cache&quot;: null,
+ &quot;notes&quot;: &quot;&quot;,
+ &quot;caption&quot;: &quot;The Man Under a Red Sky&quot;,
+ &quot;owner_id&quot;: 2
+}
+</pre>
+</blockquote>
+</div>
+<div class="section" id="authentication">
+<h1>Authentication</h1>
+<p>Authentication is done via a simple &quot;signature&quot;, which is then appended to the querystring of the API url.  We'll go into more detail below, but here is the basic scheme:</p>
+<ol class="arabic simple">
+<li>Find the URL you want to sign.  For example, let's say you want to sign the url for <tt class="docutils literal"><span class="pre">http://galleries.burningman.com/photos/scottlondon/scottlondon.41818/?mediattype=photo#pastheader</span></tt></li>
+<li>Strip off the domain name and any query arguments, so for this example we'd have <tt class="docutils literal">/photos/scottlondon/scottlondon.41818/</tt></li>
+<li>Add the url path argument for the specific API command you want.  For example, if we wanted the raw image, we'd append &quot;/image/&quot;, ending up with <tt class="docutils literal">/photos/scottlondon/scottlondon.41818/image/</tt></li>
+<li>Add any API arguments or options to the querystring.  For example, if we wanted the image to be a max height of 600 pixels, the url to be signed would be <tt class="docutils literal"><span class="pre">/photos/scottlondon/scottlondon.41818/image?h=600</span></tt></li>
+<li>Get your API key.  You must be authorized to use API functions, which you can do by using the contact page on <a class="reference external" href="http://playaevents.burningman.com">http://playaevents.burningman.com</a>, once approved, you can get the API key from your profile page at <a class="reference external" href="http://playaevents.burningman.com/accounts/profile/">http://playaevents.burningman.com/accounts/profile/</a></li>
+<li>Add your username and seed to the querystring.  For example, if my username was &quot;example&quot;, and my randomly chosen seed was &quot;greatexample&quot;, the url to be signed would be: <tt class="docutils literal"><span class="pre">/photos/scottlondon/scottlondon.41818/?h=600&amp;user=example</span></tt></li>
+<li>Make a random &quot;seed&quot; for signing.  The easiest &quot;seed&quot; is to simply take the timestamp of today, expressed as seconds.  Anything at all will be fine, but there are two caveats.  First, the seed can't ever be reused, and second, it needs to be less than 40 characters.</li>
+<li>Make a signature by taking an MD5 of the url, your seed, and your key, in that order. (examples below)</li>
+<li>Add the seed and your signature to the url.  For example, if your seed was &quot;1302229284&quot; and your MD5 signature was &quot;5de4fce4f3135424be0a63db8f3ef20c&quot;, your final url would look like this: <tt class="docutils literal"><span class="pre">/photos/scottlondon/scottlondon.41818/?h=600&amp;user=example&amp;seed=1302229284&amp;sig=5de4fce4f3135424be0a63db8f3ef20c</span></tt></li>
+<li>That's it. Call the url and if you are authorized, you'll get the image data. It will only work once for that seed and signature.</li>
+</ol>
+</div>
+<div class="section" id="authentication-code-examples">
+<h1>Authentication Code Examples</h1>
+<p><strong>Python</strong></p>
+<p>Python example code:</p>
+<pre class="literal-block">
+import hashlib
+import time
+import types
+import urllib
+import urlparse
+
+def _add_query_param(query, param, val):
+    &quot;&quot;&quot;Add a querystring parameter to the url&quot;&quot;&quot;
+
+    last = '%s=%s' % (param, urllib.quote_plus(val))
+    if query:
+        return &quot;%s&amp;%s&quot; % (query, last)
+    else:
+        return last
+
+def _remove_query_param(query, param):
+    &quot;&quot;&quot;Removes a query param, leaving the querystring in order&quot;&quot;&quot;
+    parts = query.split('&amp;')
+    look = &quot;%s=&quot; % param
+    for ix in range(len(parts)-1, -1, -1):
+        if parts[ix].startswith(look):
+            del parts[ix]
+
+    return '&amp;'.join(parts)
+
+def _replace_query_param(query, param, val):
+    &quot;&quot;&quot;Replaces a query param, leaving the querystring in order&quot;&quot;&quot;
+    parts = query.split('&amp;')
+    look = &quot;%s=&quot; % param
+    for ix in range(0, len(parts)):
+        if parts[ix].startswith(look):
+            parts[ix] = &quot;%s=%s&quot; % (param, urllib.quote_plus(val))
+            break
+    return '&amp;'.join(parts)
+
+def sign_url(url, key, user=None, seed=None):
+    &quot;&quot;&quot;Sign an url.
+
+    Args:
+        url: An url to sign.  It can have query parameters which will be preserved.
+             If there is no &quot;seed&quot; provided as a keyword arg, it will look in the
+             query params for it before finally simply giving up and using the
+             current timestamp as the seed.
+
+        key: a key to sign with
+
+    Kwargs:
+        user: a user to sign with
+        seed: An explicit seed string to use for signing.
+
+    Returns:
+        The same url, with its signature added to the querystring.
+    &quot;&quot;&quot;
+    origurl = url
+    parsed = urlparse.urlsplit(url)
+    query = parsed.query
+    qs = parse_qs(query)
+
+
+    if not seed:
+        # first look at query
+        if 'seed' in qs:
+            seed = qs['seed']
+            query = _remove_query_param(query,'seed')
+        else:
+            timestamp = datetime.datetime.now()
+            timestamp = time.mktime(timestamp.timetuple())
+            seed = str(int(timestamp))
+            log.debug('sign_url: no seed, using timestamp %s', seed)
+
+    if user is not None:
+        if 'user' in qs:
+            username = qs['user']
+            if type(username) is types.ListType:
+                username = username[0]
+            if username != user.username:
+                query = _replace_query_param(query, 'user', self.user.username)
+    else:
+        if 'user' in qs:
+            query = _remove_query_param(query, 'user')
+
+    url = urlparse.urlunsplit((parsed.scheme, parsed.netloc, parsed.path, query, parsed.fragment))
+
+    processor = hashlib.md5(work)
+    processor.update(seed)
+    processor.update(key)
+    sig = processor.hexdigest()
+    query = _add_query_param(query, 'seed', seed)
+    query = _add_query_param(query, 'sig', sig)
+
+    url = urlparse.urlunsplit((parsed.scheme, parsed.netloc, parsed.path, query, parsed.fragment))
+    return url
+</pre>
+<p><strong>PHP</strong></p>
+<p>PHP Example code:</p>
+<pre class="literal-block">
+/**
+ * Sign an url for use by the Gallery API
+ *
+ * &#64;param string $apiurl the url fragment to sign, it should not contain the scheme or server
+ * &#64;param string $key the user key
+ * &#64;param string $user the user name for the key
+ * &#64;param array $apiatts array of options with key=value
+ * &#64;param array $urlinfo the url of the originial gallery link as parsed by parse_url
+ * &#64;return string url
+ */
+function gallery_sign_url($apiurl, $key, $user, &amp;$apiatts, $urlinfo) {
+
+  $apiurl = str_replace('//', '/', $apiurl);
+  if (!empty($key) &amp;&amp; !empty($user)) {
+    $apiatts[] = 'user=' . $user;
+    $apiurl .= '?' . implode('&amp;',$apiatts);
+    $seed = time();
+    $n = rand(10e16, 10e20);
+    $seed .= base_convert($n, 10, 36);
+    $sig = md5($apiurl . $seed . $key);
+    $apiurl .= &quot;&amp;seed=$seed&amp;sig=$sig&quot;;
+  }
+  elseif (count($apiatts) &gt; 0) {
+    $apiurl .= '?' . implode('&amp;',$apiatts);
+  }
+  $signed = $urlinfo['scheme'] . '://' . $urlinfo['host'];
+  if (!empty($urlinfo['port']) &amp;&amp; $urlinfo['port'] &lt;&gt; 80) {
+    $signed .= ':' . $urlinfo['port'];
+  }
+  $signed .= $apiurl;
+  return $signed;
+}
+</pre>
+</div>
+</div>
+</body>
+</html>

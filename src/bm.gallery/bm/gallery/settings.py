@@ -68,9 +68,9 @@ INSTALLED_APPS = (
     'imagekit',
     'flowplayer',
     'bm.gallery',
-    'bm.signedauth',
+    'signedauth',
     'django_extensions',
-    'bm.signedauth.explore',
+    'signedauth.explore',
 )
 
 try:
