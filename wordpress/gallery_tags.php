@@ -34,13 +34,13 @@ add_action( 'admin_init', 'register_bm_gallery_settings' );
  *
  * Can be called in any of these formats, all attributes except url are optional
  *
- * [gallery]gallery url[/gallery]
- * [gallery watermark='none|both|footer|extended' height=100 width=100 upscale=true crop=true img=true]gallery url[/gallery]
- * [gallery watermark='none|both|footer|extended' height=100 width=100 upscale=true crop=true url='gallery url']
- * [gallery json='true']gallery url[/gallery]
- * [gallery json='true']gallery url[/gallery]
- * [gallery xml='true']gallery url[/gallery]
- * [gallery xml='true' url='gallery url']
+ * [bmimgs]gallery url[/bmimgs]
+ * [bmimgs watermark='none|both|footer|extended' height=100 width=100 upscale=true crop=true img=true]gallery url[/bmimgs]
+ * [bmimgs watermark='none|both|footer|extended' height=100 width=100 upscale=true crop=true url='gallery url']
+ * [bmimgs json='true']gallery url[/bmimgs]
+ * [bmimgs json='true']gallery url[/bmimgs]
+ * [bmimgs xml='true']gallery url[/bmimgs]
+ * [bmimgs xml='true' url='gallery url']
  *
  * Options descriptions:
  * - watermark: Default is none, can alsp be "both", "footer" or "extended"
@@ -84,7 +84,7 @@ function gallery_tag($atts, $content=null) {
   extract($processed);
 
   if ($url == null) {
-    return '<!-- Bad [gallery] tag, no url passed -->';
+    return '<!-- Bad [bmimgs] tag, no url passed -->';
   }
 
   $urlinfo = parse_url($url);
@@ -194,7 +194,7 @@ function gallery_tag($atts, $content=null) {
   return $ret;
 }
 
-add_shortcode('gallery', 'gallery_tag');
+add_shortcode('bmimgs', 'gallery_tag');
 
 /**
  * Sign an url for use by the Gallery API
