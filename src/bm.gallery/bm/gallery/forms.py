@@ -127,6 +127,7 @@ class RegForm(forms.ModelForm):
 class UploadForm(forms.Form):
     file_ = forms.FileField(label=_(u'Upload'), required=True)
 
+
 UploadFormSet = formsets.formset_factory(UploadForm)
 UploadFormSet.clean = clean
 

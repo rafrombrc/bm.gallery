@@ -108,9 +108,9 @@ Authentication is done via a simple "signature", which is then appended to the q
 #. Add the url path argument for the specific API command you want.  For example, if we wanted the raw image, we'd append "/image/", ending up with ``/photos/scottlondon/scottlondon.41818/image/``
 #. Add any API arguments or options to the querystring.  For example, if we wanted the image to be a max height of 600 pixels, the url to be signed would be ``/photos/scottlondon/scottlondon.41818/image?h=600``
 #. Get your API key.  You must be authorized to use API functions, which you can do by using the contact page on http://playaevents.burningman.com, once approved, you can get the API key from your profile page at http://playaevents.burningman.com/accounts/profile/
-#. Add your username and seed to the querystring.  For example, if my username was "example", and my randomly chosen seed was "greatexample", the url to be signed would be: ``/photos/scottlondon/scottlondon.41818/?h=600&user=example``
 #. Make a random "seed" for signing.  The easiest "seed" is to simply take the timestamp of today, expressed as seconds.  Anything at all will be fine, but there are two caveats.  First, the seed can't ever be reused, and second, it needs to be less than 40 characters.
-#. Make a signature by taking an MD5 of the url, your seed, and your key, in that order. (examples below)
+#. Add your username to the querystring.  For example, if my username was "example", the url to be signed would be: ``/photos/scottlondon/scottlondon.41818/?h=600&user=example``
+#. Make a signature by taking an MD5 of the url, your seed, and your key, in that order. (code examples below)
 #. Add the seed and your signature to the url.  For example, if your seed was "1302229284" and your MD5 signature was "5de4fce4f3135424be0a63db8f3ef20c", your final url would look like this: ``/photos/scottlondon/scottlondon.41818/?h=600&user=example&seed=1302229284&sig=5de4fce4f3135424be0a63db8f3ef20c``
 #. That's it. Call the url and if you are authorized, you'll get the image data. It will only work once for that seed and signature.
 

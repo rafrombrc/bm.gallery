@@ -53,5 +53,9 @@
 
     </div>
   </form>
+  {% if user.userkey_set.count %}{% with user.userkey_set.all.0 as userkey %}{% if userkey.active %}
+  <h2>API Key</h2>
+  <p>{{ userkey.key }}</p>
+  {% endif %}{% endwith %}{% endif %}
 
 {% endblock %}
