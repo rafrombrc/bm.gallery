@@ -10,7 +10,8 @@ from django.conf import settings
 from bm.gallery.models import Photo, Artifact, Profile
 from bm.gallery.ldap_util import get_user_dn, ldap_delete
 
-from bm.gallery import views
+from bm.gallery import views  # needed for ldap config.. side effects, ugh
+
 
 class Command(BaseCommand):
     args = '<canonical_user> <obsolete_user> [--readonly]'
@@ -132,10 +133,12 @@ class Command(BaseCommand):
         image.image.upload_to = subpath + new_filename
         image.owner = newuser
         # example:    photos
-        new_image_path_for_imagefield = '%s/%s/%s' % (os.path.split(images_base)[1], newuser.username, new_filename) 
+        new_image_path = '%s/%s/%s' % (os.path.split(images_base)[1],
+                                       newuser.username, new_filename)
 
-        # Django doesn't let us change the image path via the ImageField interface,
-        # and we've already moved the file in the OS, so we'll just change the value manually.
+        # Django doesn't let us change the image path via the ImageField
+        # interface, and we've already moved the file in the OS, so we'll just
+        # change the value manually.
 
         if isinstance(image, Photo) and image.in_press_gallery:
             self.change_image_in_press_gallery(old_filename, new_filename)
@@ -145,10 +148,17 @@ class Command(BaseCommand):
         # We're done prep, now commit the actual moves.
         if not self.readonly:
             image.save()
-            self.change_db_filename(image.id, new_image_path_for_imagefield)
+            self.change_db_filename(image.id, new_image_path)
             # Note: os.renames will create intermediate dirs if they don't
             # exist.
             os.renames(image.image.path, new_file_path)
+            # generate the scaled images, cargo-culted from ImageKit's ikflush
+            # command
+            model = image.__class__
+            for spec in model._ik.specs:
+                prop = getattr(image, spec.name(), None)
+                if prop is not None and spec.pre_cache:
+                    prop._create()
 
     def change_image_in_press_gallery(self, old_filename, new_filename):
         old_path = settings.PRESS_GALLERY_PATH + old_filename
@@ -160,9 +170,9 @@ class Command(BaseCommand):
         if not self.readonly:
             os.renames(old_path, new_path)
 
-
     def change_db_filename(self, image_id, new_image_path):
-      cursor = connection.cursor()
-      cursor.execute("UPDATE gallery_imagebase SET image = '%s' WHERE mediabase_ptr_id = %d" % (new_image_path, image_id))
-      transaction.commit_unless_managed()
-
+        cursor = connection.cursor()
+        cursor.execute("UPDATE gallery_imagebase SET image = '%s' "
+                       "WHERE mediabase_ptr_id = %d" % (new_image_path,
+                                                        image_id))
+        transaction.commit_unless_managed()
