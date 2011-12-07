@@ -230,6 +230,7 @@ class Photo(ImageBase):
     legacy_id = models.PositiveIntegerField(editable=False, null=True,
                                             db_index=True)
     in_press_gallery = models.BooleanField(default=False, db_index=True)
+    watermark_height = models.PositiveIntegerField(editable=False)
 
     def __unicode__(self):
         return "Photo: %s/%s" % (self.owner.username, self.slug)
