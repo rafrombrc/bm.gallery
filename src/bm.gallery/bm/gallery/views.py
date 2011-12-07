@@ -594,7 +594,8 @@ def media_view(request, mediatype, username, slug, piston=False):
             template_map['can_retract'] = True
     if mediatype in image_types:
         template = 'gallery/image.html'
-        template_map['display_height'] = resource.display.height - 50
+        template_map['display_height'] = (resource.display.height -
+                                          resource.textheight)
         if (request.user.has_perm('gallery.can_see_press_gallery') and
             getattr(resource, 'in_press_gallery', False)):
             filename = os.path.split(resource.image.name)[-1]

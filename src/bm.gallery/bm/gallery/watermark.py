@@ -13,7 +13,10 @@ class Watermark(ImageProcessor):
     @classmethod
     def process(cls, image, fmt, obj=None):
         """Adds a watermark to an image."""
-        newimage = add_watermark(image, footer=False, extended=True)
+        newimage, textheight = add_watermark(image, footer=False, extended=True)
+        if textheight is not None and obj is not None:
+            obj.textheight = textheight
+            obj.save()
         return newimage, fmt
 
 def add_watermark(image, footer=True, extended=True):
@@ -46,11 +49,11 @@ def add_watermark(image, footer=True, extended=True):
                        fill=(0,0,0,90))
         draw.text((10, im_height - fontsize - 4), copyright, fill=(255,255,255,90), font=font)
 
-
+    textheight = None
     if extended:
         newimage = Image.new('RGB', (im_width, im_height + 200), white)
         textheight = draw_word_wrap(newimage, EXTRA_COPY, 10, 5, max_width=im_width-10, fill=pink, font=font, height_only=True)
-        h = im_height + textheight + 5
+        h = im_height + textheight
         log.debug('new height: %s, textheight=%s', h, textheight)
         newimage = Image.new('RGB', (im_width, h), white)
     else:
@@ -83,7 +86,7 @@ def add_watermark(image, footer=True, extended=True):
 
     comp = Image.composite(overlay, image, overlay)
     newimage.paste(comp, (0,0))
-    return newimage
+    return newimage, textheight
 
 
 def draw_word_wrap(img, text, xpos=0, ypos=0, max_width=130,
