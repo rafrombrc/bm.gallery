@@ -8,14 +8,14 @@ class Migration(SchemaMigration):
 
     def forwards(self, orm):
         
-        # Adding field 'Photo.watermark_height'
-        db.add_column('gallery_photo', 'watermark_height', self.gf('django.db.models.fields.PositiveIntegerField')(default=50), keep_default=False)
+        # Adding field 'ImageBase.textheight'
+        db.add_column('gallery_imagebase', 'textheight', self.gf('django.db.models.fields.PositiveIntegerField')(default=50), keep_default=False)
 
 
     def backwards(self, orm):
         
-        # Deleting field 'Photo.watermark_height'
-        db.delete_column('gallery_photo', 'watermark_height')
+        # Deleting field 'ImageBase.textheight'
+        db.delete_column('gallery_imagebase', 'textheight')
 
 
     models = {
@@ -77,7 +77,8 @@ class Migration(SchemaMigration):
             'date_taken': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
             'full_image_available': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'image': ('django.db.models.fields.files.ImageField', [], {'max_length': '100', 'null': 'True'}),
-            'mediabase_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['gallery.MediaBase']", 'unique': 'True', 'primary_key': 'True'})
+            'mediabase_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['gallery.MediaBase']", 'unique': 'True', 'primary_key': 'True'}),
+            'textheight': ('django.db.models.fields.PositiveIntegerField', [], {})
         },
         'gallery.mediabase': {
             'Meta': {'object_name': 'MediaBase'},
@@ -103,8 +104,7 @@ class Migration(SchemaMigration):
             'Meta': {'object_name': 'Photo', '_ormbases': ['gallery.ImageBase']},
             'imagebase_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['gallery.ImageBase']", 'unique': 'True', 'primary_key': 'True'}),
             'in_press_gallery': ('django.db.models.fields.BooleanField', [], {'default': 'False', 'db_index': 'True'}),
-            'legacy_id': ('django.db.models.fields.PositiveIntegerField', [], {'null': 'True', 'db_index': 'True'}),
-            'watermark_height': ('django.db.models.fields.PositiveIntegerField', [], {})
+            'legacy_id': ('django.db.models.fields.PositiveIntegerField', [], {'null': 'True', 'db_index': 'True'})
         },
         'gallery.profile': {
             'Meta': {'object_name': 'Profile'},
