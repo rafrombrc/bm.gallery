@@ -4,14 +4,14 @@ from imagekit.specs import ImageSpec
 from imagekit import processors
 
 # first we define our thumbnail resize processor
-class ResizeThumb(processors.Resize): 
+class ResizeThumb(processors.Resize):
     width = 96
     height = 128
     crop = True
 
 # now we define a display size resize processor
 class ResizeDisplay(processors.Resize):
-    width = 400	
+    width = 400
     height = 400
 
 # now lets create an adjustment processor to enhance the image at small sizes
