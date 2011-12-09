@@ -910,10 +910,15 @@ def upload(request):
             try:
                 for instance in instances:
                     instance.save()
-            except:
+            except Exception, e:
+                # BJK: I don't like catching naked exceptions, so lets at least log it
+                # for troubleshooting later
+                log.error("Error saving the image, we're going to delete the instance, error follows")
+                log.error(e)
                 for instance in instances:
-                    instance.delete()
-                raise
+                    if instance._get_pk_val() is not None:
+                        instance.delete()
+                raise e
             request.notifications.add(_('Resources uploaded.'))
             url = '%s/edit' % instance.get_absolute_url()
             batch_length = len(instances)
