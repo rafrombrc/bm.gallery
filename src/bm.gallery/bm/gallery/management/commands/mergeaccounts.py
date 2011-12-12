@@ -130,7 +130,7 @@ class Command(BaseCommand):
                          + '/' + new_filename)
 
         # Change image metadata in Django
-        image.image.upload_to = subpath + new_filename
+        image.image.upload_to = subpath + '/' + new_filename
         image.owner = newuser
         # example:    photos
         new_image_path = '%s/%s/%s' % (os.path.split(images_base)[1],
@@ -149,11 +149,18 @@ class Command(BaseCommand):
         if not self.readonly:
             image.save()
             self.change_db_filename(image.id, new_image_path)
+
             # Note: os.renames will create intermediate dirs if they don't
             # exist.
             os.renames(image.image.path, new_file_path)
-            # generate the scaled images, cargo-culted from ImageKit's ikflush
-            # command
+
+            # At this point, we've changed the Django metadata for the main image, and moved the file itself.
+            # We still need to autogenerate a thumbnail for the image.
+
+            # Update the underlying image 'name', really the relative image path, so that we can create the thumbnail correctly
+            image.image.name = new_image_path
+
+            # Generate the scaled images, cargo-culted from ImageKit's ikflush command
             model = image.__class__
             for spec in model._ik.specs:
                 prop = getattr(image, spec.name(), None)
