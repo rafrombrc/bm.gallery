@@ -1,4 +1,4 @@
-/* 	Stylesheet for the Burning Man Galleries 
+/* 	Stylesheet for the Burning Man Galleries
 	galleries.burningman.com */
 /* Calliope Gazetas - May 2010 */
 
@@ -6,7 +6,7 @@
 
 body {
     font-family: Verdana, Arial, sans-serif;
-    font-size: 72%; 
+    font-size: 72%;
     text-align: left;
     background-color: #fff;
     color: black;
@@ -20,13 +20,13 @@ a img {
 
 /* CONTAINERS */
 
-#wrap { 
+#wrap {
 	width: 950px;
 	margin: auto;
 	padding: 0;
 }
 
-#header {  
+#header {
 	height: auto;
 
 }
@@ -50,7 +50,7 @@ a img {
 	line-height: 1.5em;
 }
 
-#gallery-header { 
+#gallery-header {
 	width: 900px;
 	height: 64px;
 	margin: 0 auto;
@@ -58,7 +58,7 @@ a img {
 	text-align: center;
 	clear: both;
 	}
-	
+
 #main-content {
 	background: url(/static/content-header-bg.gif) no-repeat top center;
 	width: 950px;
@@ -67,7 +67,7 @@ a img {
 }
 
 #search-bar {
-	width: 700px;
+	width: 705px;
 	height: 15px;
 	margin: 0 auto;
 	padding: 0;
@@ -90,7 +90,7 @@ a img {
 	width: 780px;
 	margin: 0;
 	padding: 0 20px;
-	
+
 }
 
 #page-title-nav {
@@ -245,7 +245,7 @@ h1 {
 	padding: 0;
 	margin: 0;
 	font-weight: normal;
-	
+
 }
 
 #page-title-nav h1 {
@@ -281,17 +281,17 @@ p {
 }
 
 
-#account-info a { 
+#account-info a {
 	text-decoration: none;
 	color: #900;
 	}
-	
+
 #account-info a:hover {
 	color: #c33;
     text-decoration: none;
     border-bottom: 1px solid #c33;
     }
-    
+
 #search-bar a {
 	text-decoration: none;
 	color: #900;
@@ -302,7 +302,7 @@ p {
     text-decoration: none;
     border-bottom: 1px solid #c33;
     }
-    
+
 #notifications {
 	margin: 40px 80px 0 90px;
 	width: auto;
@@ -356,7 +356,7 @@ height: 24px;
 	border-bottom: 1px #c6c8c8 solid;
 	padding-top: 7px;
 	margin-top: 20px;
-	
+
 }
 
 #cont-alpha-nav li {
@@ -365,7 +365,7 @@ height: 24px;
 	display: inline;
 	font-size: 1.1em;
 	color: #fff;
-	
+
 }
 
 #cont-alpha-nav li a {
@@ -411,7 +411,7 @@ height: 24px;
 	padding-top: 20px;
 }
 
-#big-letter { 
+#big-letter {
 	font-size: 3em;
 	color: #747474;
 	text-align: right;
@@ -426,7 +426,7 @@ height: 24px;
 	float: left;
 
 }
-	
+
 #cont-column-two {
 	width: 200px;
 	margin: 10px 0 0 0;
@@ -438,7 +438,7 @@ height: 24px;
 	clear: all;
 	}
 
-    
+
 /* BUTTONS */
 
 #search-bar input.searchButton {
@@ -469,7 +469,7 @@ height: 24px;
 
 #userlist ul {
 	width: auto;
-}	
+}
 
 #userlist h3 {
 	padding: 0 0 0 20px;
@@ -477,7 +477,7 @@ height: 24px;
 
 #userlist li {
 	list-style-type: none;
-}	
+}
 
 
 /* SEARCH BAR INPUT/SELECT POSITIONING */
@@ -500,7 +500,7 @@ height: 24px;
 	position: relative;
 	top: -14px;
 	margin: 0;
-	padding: 0 0 4px 0;
+	padding: 2px 0 2px 0;
 }
 
 /* NAVIGATION */
@@ -525,17 +525,17 @@ height: 24px;
 	font-size: 10px;
 	background-color: transparent;
 	text-decoration: none;}
-	
+
 #globalnav a:hover {color: #900;
 	text-decoration: underline;}
-	
+
 #globalnav span.globalnavcat {color: #666;
 	font-weight: normal;
 	font-size: .9ems; }
-	
+
 
 /* THUMBNAIL NAV STUFF */
-	
+
 .thumbnail-nav  {
 	display: inline;
 	float: right;
@@ -553,7 +553,7 @@ height: 24px;
 	padding: 8px 0 6px 0;
 	height: 31px;
  }
- 
+
  .end-left {
 	margin: 0;
 	padding: 0;
@@ -596,7 +596,7 @@ a.listingPrevious img {
 
 
 /* THUMBNAIL NAV STUFF */
-	
+
 
 
 #contrib-mod-nav {
@@ -625,7 +625,7 @@ a.listingPrevious img {
 	padding: 8px 0 20px 0;
 	list-style-type: none;
 }
-	
+
 
 #contrib-mod-nav li a {
 	font-size: 1.05em;
@@ -641,13 +641,13 @@ a.listingPrevious img {
 	font-weight: bold;
 	text-decoration: underline;
 	}
-	
-	
+
+
 #contrib-mod-nav .current-cont-nav {
 	padding: 6px 0;
 	margin: 0 2px;
 	font-weight: bold;
-	} 
+	}
 
 .end-cm-left {
     margin: 0;

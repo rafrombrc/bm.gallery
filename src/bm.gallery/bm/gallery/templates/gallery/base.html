@@ -91,9 +91,8 @@
 
             <input class="searchButton" type="submit" value="GO" />
           </form>
-
+          <a href="{% url bm.gallery.views.contributors %}"><span class="cont-link">Browse Contributors</span></a>
         </div> <!-- end search-bar -->
-        <a href="{% url bm.gallery.views.contributors %}"><span class="cont-link">Browse Contributors</span></a>
 
         {% if notifications %}
         <div id="notifications">
