@@ -3,8 +3,6 @@ import os.path
 
 APP_ROOT = os.path.normpath(os.path.dirname(__file__))
 
-DATABASE_ENGINE = 'postgresql_psycopg2'
-
 SITE_ID = 1
 
 USE_I18N = True
@@ -70,7 +68,7 @@ INSTALLED_APPS = (
     'bm.gallery',
     'signedauth',
     'django_extensions',
-    'signedauth.explore',
+    #'signedauth.explore',
     'south',
 )
 

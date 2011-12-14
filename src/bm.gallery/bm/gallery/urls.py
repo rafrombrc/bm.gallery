@@ -1,6 +1,6 @@
 from bm.gallery import feeds
 from django.conf import settings
-from django.conf.urls.defaults import handler404, include, patterns
+from django.conf.urls.defaults import handler404, handler500, include, patterns
 from django.contrib import admin
 import django.contrib.auth.views
 
@@ -46,7 +46,7 @@ urlpatterns += patterns('',
 
 urlpatterns += patterns(
     'bm.gallery.views',
-    (r'^admin/(.*)', admin.site.root),
+    (r'^admin/', include(admin.site.urls)),
     (r'^contributors$', 'contributors'),
     (r'^press_gallery$', 'press_gallery'),
     (r'^full_size$', 'full_size'),
