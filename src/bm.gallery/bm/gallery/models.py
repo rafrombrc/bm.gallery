@@ -199,6 +199,7 @@ class ImageBase(ImageModel, MediaBase):
     date_taken = models.DateTimeField(_('date taken'), null=True,
                                       blank=True, editable=False)
     full_image_available = models.BooleanField(default=False)
+    textheight = models.PositiveIntegerField(editable=False)
 
     class IKOptions:
         spec_module = 'bm.gallery.specs'
