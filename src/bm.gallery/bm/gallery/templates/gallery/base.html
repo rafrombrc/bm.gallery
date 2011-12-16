@@ -12,6 +12,7 @@
 <!--[if IE 7]>
   <link rel="stylesheet" href="/static/css/IE7.css" type="text/css" media="screen">
 <![endif]-->
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.js"></script>
     {% block extra-head %}{% endblock %}
   </head>
 
@@ -90,8 +91,8 @@
             {% endif %}
 
             <input class="searchButton" type="submit" value="GO" />
+            <a href="{% url bm.gallery.views.contributors %}"><span class="cont-link">Browse Contributors</span></a>
           </form>
-          <a href="{% url bm.gallery.views.contributors %}"><span class="cont-link">Browse Contributors</span></a>
         </div> <!-- end search-bar -->
 
         {% if notifications %}

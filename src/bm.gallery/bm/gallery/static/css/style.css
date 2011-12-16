@@ -60,17 +60,16 @@ a img {
 	}
 
 #main-content {
-	background: url(/static/content-header-bg.gif) no-repeat top center;
+	background: url(/static/content-header-bg.gif) no-repeat center 25px;
 	width: 950px;
 	margin: auto;
 	padding: 0;
 }
 
 #search-bar {
-	width: 705px;
-	height: 15px;
-	margin: 0 auto;
-	padding: 0;
+	height: 25px;
+	margin: 0 0 0 115px;
+	padding: 0 0 0 0;
 }
 
 #search-bar form {
@@ -496,8 +495,6 @@ height: 24px;
 }
 
 #search-bar .cont-link {
-	float: right;
-	position: relative;
 	top: -14px;
 	margin: 0;
 	padding: 2px 0 2px 0;

@@ -8,6 +8,7 @@ SITE_ID = 1
 USE_I18N = True
 
 MEDIA_ROOT = '%s/static/' % APP_ROOT
+
 MEDIA_URL = '/static/'
 
 GALLERIES_URL = '/g/'
@@ -90,4 +91,6 @@ AUTHENTICATION_BACKENDS = (
 
 USE_LDAP = True
 
+# Load the local settings
 from bm.gallery.local_settings import *
+
