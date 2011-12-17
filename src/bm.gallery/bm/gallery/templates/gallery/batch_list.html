@@ -1,0 +1,10 @@
+{% extends "gallery/base.html" %}
+
+{% block content %}
+<h1>Your Unsubmitted Batches</h1>
+{% url gallery_batch_edit batch.uuid as url %}{% url gallery_batch_list as indexurl %}
+<ul>
+  {% for batch in batches %}
+  <li><a href="{% url gallery_batch_edit batch.uuid %}">Edit {{ batch.name }}</a></li>{% endfor %}
+</ul>
+{% endblock %}

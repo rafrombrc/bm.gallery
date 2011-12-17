@@ -1,6 +1,6 @@
 from bm.gallery import feeds
 from django.conf import settings
-from django.conf.urls.defaults import handler404, handler500, include, patterns
+from django.conf.urls.defaults import handler404, include, patterns, url
 from django.contrib import admin
 import django.contrib.auth.views
 
@@ -8,10 +8,16 @@ admin.autodiscover()
 
 urlpatterns = patterns(
     'bm.gallery.views',
-    (r'^$', 'index'),
-    (r'^upload$', 'upload'),
-    (r'^browse$', 'browse'),
-    (r'^register$', 'register'),
+    url(r'^$', 'index'),
+    url(r'^upload$', 'upload'),
+    url(r'^upload/file$', 'upload_ajax', name="gallery_upload_ajax"),
+    url(r'^upload/batchname$', 'batchname_ajax', name="gallery_batchname_ajax"),
+    url(r'^delete/(?P<mediatype>.*)/(?P<pictureid>\d+)$', 'delete_ajax', name="gallery_delete_ajax"),
+    url(r'^batch/(?P<batchid>.*)/later/$', 'batch_later', name='gallery_batch_later'),
+    url(r'^batch/(?P<batchid>.*)/edit/$', 'batch_edit', name='gallery_batch_edit'),
+    url(r'^batch$', 'batch_list', name='gallery_batch_list'),
+    url(r'^browse$', 'browse'),
+    url(r'^register$', 'register'),
     )
 
 urlpatterns += patterns(

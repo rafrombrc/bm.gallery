@@ -1,58 +1,54 @@
 {% extends "gallery/base.html" %}
+{% load upload_tags %}
 
 {% block extra-head %}
-<script type="text/javascript" src="/static/scripts/addremove.js"></script>
+<link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/smoothness/jquery-ui.css" id="theme">
+<link rel="stylesheet" href="/static/css/jquery.fileupload-ui.css">
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>
+<script src="/static/scripts/jquery.tmpl.min.js"></script>
+<script src="/static/scripts/tmpl.min.js"></script>
+<script src="/static/scripts/jquery.iframe-transport.js"></script>
+<script src="/static/scripts/jquery.fileupload.js"></script>
+<script src="/static/scripts/jquery.fileupload-ui.js"></script>
+<script src="/static/scripts/gallery_fileupload.js"></script>
 
-<script type="text/javascript">
-  $(document).ready(function() {
-      $('#another').click(function() {
-          addField('#upload_form .upload_field:last', 'form');
-      });
-
-      $('.remove').click(function() {
-          removeField(this, 'form');
-      });
-
-      if ($('.upload_field').size() >= 10) {
-          $('#another').hide();
-      };
+<script type='text/javascript'>
+  $(function() {
+    gallery.init_fileupload('#fileupload', {% if videoPermission %}true{% else %}false{% endif %});
   });
 </script>
 
 {% endblock %}
 
-
 {% block content %}
-
 <h1>Upload</h1>
 
-{% if upload_formset.non_form_errors %}
-<h5>{{ upload_formset.non_form_errors }}</h5>
-{% endif %}
+<p>To upload, just click &ldquo;Add Files&rdquo; below.  You can add multiple files at once by holding control (command on a Mac) and clicking multiple files.  Make sure to click &ldquo;Start Upload&rdquo; when you've selected your files.</p>
+<p>You can upload image files{% if videoPermission %}, movies{% endif %} and zip (or tar) files.  Zip files will automatically be unzipped, and just the images{% if videoPermission %} and movies{% endif %} extracted.</p>
 
-<form action="/upload"
-      method="POST" enctype="multipart/form-data"
-      id="upload_form">
-  {{ mediatype_form.as_p }}
-  {{ upload_formset.management_form }}
-  {% for form in upload_formset.forms %}
-  <p class="upload_field">{{ form.file_.label_tag }}: {{ form.file_ }} {% if not forloop.first %}<a class="remove">remove</a>{% endif %}</p>
-  {% endfor %}
-  <a id="another">Add another</a>
+<div id="fileupload">
+    <form method="post" action="{% url gallery_upload_ajax %}" enctype="multipart/form-data">
+        <div class="fileupload-buttonbar">
+            {% csrf_token %}
+            <input type="hidden" name="batch" value="{{ batch.uuid }}" />
+            <label class="fileinput-button">
+                <span>Add files...</span>
+                <input type="file" name="file" multiple>
+            </label>
+            <button type="submit" class="start">Start upload</button>
+            <button type="reset" class="cancel">Cancel upload</button>
+            <button type="button" class="delete">Delete files</button>
+        </div>
+        <div class="fileupload-content">
+          <table class="files"></table>
+          <div class="fileupload-progressbar"></div>
+        </div>
 
-
-  <div id="viewspace">
-    <div id="actionsView">
-
-      <span class="actionButtons">
-        <input type="submit" id="save" name="save" value="Save" class="context" />
-        <input type="submit" id="cancel" name="cancel" value="Cancel" class="context" />
-      </span>
-    </div>
-
+        <p>
+          <label for="id_batchname">Name this batch of uploads (optional):</label>
+          <input id="id_batchname" type="text" name="batchname" value="{{ batch.name|default:batch.autoname }}" length="100" />
+        </p>
+  </form>
 </div>
-</form>
-
-
-
+{% upload_js %}
 {% endblock %}

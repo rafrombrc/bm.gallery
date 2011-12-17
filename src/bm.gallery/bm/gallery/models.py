@@ -4,7 +4,7 @@ from django.conf import settings
 from django.contrib.auth import models as authmodels
 from django.core.files.storage import FileSystemStorage
 from django.core.validators import email_re
-from django.db import models
+from django.db import models, connection
 from django.db.models import signals
 from django.utils.translation import ugettext_lazy as _
 from imagekit.lib import Image
@@ -13,6 +13,7 @@ from imagekit.specs import Accessor
 from bm.gallery.watermark import add_watermark
 from bm.gallery.resize import resize_image
 from tagging import models as tagmodels
+from django_extensions.db.fields import UUIDField
 import logging
 import os
 import shutil
@@ -131,6 +132,15 @@ class MediaBase(models.Model):
                 if attrpath:
                     return '%s.%s' % (attrpath, inst_cls.__name__.lower())
 
+    def delete(self, *args, **kwargs):
+        cursor = connection.cursor()
+        cursor.execute('delete from gallery_searchable_text where mediabase_ptr_id=%i' % self.id)
+        fname = self.get_fname()
+        log.info('deleting %s', fname)
+        os.unlink(fname)
+
+        super(MediaBase, self).delete()
+
     def get_child_instance(self):
         """Returns an instance of the appropriate model subclass for
         this instance."""
@@ -138,6 +148,9 @@ class MediaBase(models.Model):
         for attr in self.child_attrpath.split('.'):
             child = getattr(child, attr, child)
         return child
+
+    def get_fname(self):
+        return self.image.file.name
 
     @property
     def mediadir(self):
@@ -231,9 +244,14 @@ class Photo(ImageBase):
     legacy_id = models.PositiveIntegerField(editable=False, null=True,
                                             db_index=True)
     in_press_gallery = models.BooleanField(default=False, db_index=True)
+    batch = models.ForeignKey('Batch', related_name='photos', null=True)
 
     def __unicode__(self):
         return "Photo: %s/%s" % (self.owner.username, self.slug)
+
+    @classmethod
+    def mediatype(klass):
+        return 'photo'
 
     @property
     def image_data(self):
@@ -289,6 +307,11 @@ class Artifact(ImageBase):
     mediadir = 'artifacts'
     legacy_id = models.PositiveIntegerField(editable=False, null=True,
                                             db_index=True)
+    batch = models.ForeignKey('Batch', related_name='artifacts', null=True)
+
+    @classmethod
+    def mediatype(klass):
+        return 'artifact'
 
     def __unicode__(self):
         return "Artifact: %s/%s" % (self.owner.username, self.slug)
@@ -309,12 +332,20 @@ class Video(MediaBase):
     # flag for whether or not video needs to be encoded
     encode = models.BooleanField(default=False)
     mediadir = 'videos'
+    batch = models.ForeignKey('Batch', related_name='videos', null=True)
+
+    @classmethod
+    def mediatype(klass):
+        return 'video'
 
     def __unicode__(self):
         return "Video: %s/%s" % (self.owner.username, self.slug)
 
     def get_display_url(self):
         return self.filefield.url
+
+    def get_fname(self):
+        return self.filefield.file.name
 
     @property
     def thumbnail_image(self):
@@ -343,3 +374,46 @@ def get_pending_contributors():
     pending_contributors = authmodels.User.objects
     pending_contributors = pending_contributors.exclude(groups__name='galleries')
     return pending_contributors.order_by('id')
+
+def klass_from_metadata(metadata, fname):
+    """Returns the correct Media Class from the metadata"""
+    mime = metadata.get('mime_type', None)
+    if not mime:
+        log.warn('Could not extract metadata for %s', fname)
+        return None
+    filetype = mime.split('/')[0]
+    if not filetype:
+        log.warn('Could not extract determine MIME type for %s', fname)
+        return None
+
+    if filetype == 'image':
+        return Photo
+    elif filetype == 'video':
+        return Video
+    else:
+        return Artifact
+
+
+class Batch(models.Model):
+    uuid = UUIDField(primary_key=True)
+    name = models.CharField(max_length=100, blank=True, null=True)
+    user = models.ForeignKey(authmodels.User)
+    date_added = models.DateTimeField(_('date added'),
+                                      default=datetime.now, editable=False)
+    submitted = models.BooleanField('Submitted', default=False)
+
+    def autoname(self):
+        return "%s %s" % (self.date_added.strftime('%m-%d-%y %H:%M'), self.user.username)
+
+    def save(self, *args, **kwargs):
+        if not self.name:
+            self.name = self.autoname()
+
+        super(Batch, self).save(*args, **kwargs)
+
+    def __unicode__(self):
+        name = self.name
+        if not name:
+            name = self.autoname()
+        return u"Batch: %s for %s" % (name, self.user.username)
+
