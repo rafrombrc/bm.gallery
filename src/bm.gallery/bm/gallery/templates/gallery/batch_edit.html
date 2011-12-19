@@ -7,6 +7,18 @@
 <script type='text/javascript'>
 $(function() {
   $('.button').button();
+  $('div.delete input').click(function() {
+    var elt = $(this), prefix, pos, work;
+    if (elt.val() === "on") {
+      prefix = elt.attr('id');
+      pos = prefix.search('DELETE');
+      prefix = prefix.substr(0, pos);
+      work = $('#' + prefix + 'title');
+      if (!work.val()) {
+        work.val('TO DELETE');
+      }
+    }
+  });
 });
 </script>
 {% endblock %}
@@ -21,12 +33,17 @@ $(function() {
 </p>
 <div class="styledform">
 <form action="{% url gallery_batch_edit batch.uuid %}" method="post" class="batchedit">
+  {% csrf_token %}
+  {% if photoforms %}{{ photoforms.management_form }}{% endif %}
+  {% if videoforms %}{{ videoforms.management_form }}{% endif %}
+  {% if artifactforms %}{{ articleforms.management_form }}{% endif %}
   <table class="edit">
     {% if photoforms %}
       <h2>Photos</h2>
       {% for form in photoforms %}
       <tr>
         <td class="infocell">
+          {{ form.imagebase_ptr }}
           <fieldset>
           <div class="required">
             {{ form.title.label_tag }}{{ form.title }}
@@ -45,7 +62,7 @@ $(function() {
             {% if form.tags.errors %}<p class="error">{{ form.tags.errors|join:',' }}</p>{% endif %}
           </div>
           <div class="field">
-            {{ form.categories.label_tag }}
+            <b>{{ form.categories.label_tag }}</b>
             <div class="choicelist">{{ form.categories }}</div>
             {% if form.categories.errors %}<p class="error">{{ form.categories.errors|join:',' }}</p>{% endif %}
           </div>
@@ -61,7 +78,8 @@ $(function() {
       {% endfor %}
       <tr>
         <td>
-          <input type="submit" class="button" value="Save Information" />
+          <input type="submit" class="button" name="save_submit" value="Save and Submit" />
+          <input type="submit" class="button" name="save_edit" value="Save and Keep Editing" />
         </td>
         <td>&nbsp;</td>
       </tr>

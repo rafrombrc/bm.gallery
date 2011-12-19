@@ -21,7 +21,7 @@ def con_mod_nav(context, media_ob=None):
                                            owner=user)):
         my_unsubmitted = dict(
             title=_('My Unsubmitted'),
-            url='%s?status=uploaded&owner=%s' % (browse_url, user.username))
+            url = reverse('gallery_batch_list'))
         nav_items.append(my_unsubmitted)
 
     if len(models.MediaBase.objects.filter(status='approved',

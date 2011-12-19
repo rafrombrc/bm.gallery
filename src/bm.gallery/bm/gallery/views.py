@@ -1,6 +1,6 @@
 from __future__ import absolute_import
 from bm.gallery import models
-from bm.gallery.forms import mediatype_forms, PasswordChangeForm, UserForm, ProfileForm, RegForm, MediaTypeForm, UploadFormSet, PhotoForm, ArtifactForm, VideoForm
+from bm.gallery.forms import mediatype_forms, PasswordChangeForm, UserForm, ProfileForm, RegForm, PhotoFormNoFile, ArtifactFormNoFile, VideoFormNoFile
 from bm.gallery.ldap_util import get_ldap_connection, get_user_dn, ldap_add
 from bm.gallery.media import image_types, mediatype_deplural
 from bm.gallery.utils import BetterPaginator, apply_searchable_text_filter, filter_args_from_request, media_klass_from_request
@@ -138,34 +138,70 @@ def batch_edit(request, batchid):
 
     video = batch.user.has_perm('gallery.can_review')
     photoforms = None
+    photovalid = True
     videoforms = None
+    videovalid = True
     artifactforms = None
+    artifactvalid = True
+
+    editing = request.method == "POST"
 
     if batch.photos.count():
         factory = modelformset_factory(models.Photo,
-                                       form=PhotoForm,
+                                       form=PhotoFormNoFile,
                                        max_num = batch.photos.count(),
                                        can_delete = True,
                                        extra=0)
-        photoforms = factory(queryset=batch.photos.all(), prefix='photos')
-        log.debug(photoforms.forms[0].as_table())
+        if editing:
+            photoforms = factory(request.POST, queryset=batch.photos.all(), prefix='photos')
+            photovalid = photoforms.is_valid()
+        else:
+            photoforms = factory(queryset=batch.photos.all(), prefix='photos')
 
     if batch.artifacts.count():
         factory = modelformset_factory(models.Artifact,
-                                       form=ArtifactForm,
+                                       form=ArtifactFormNoFile,
                                        max_num = batch.artifacts.count(),
                                        can_delete = True,
                                        extra=0)
-        artifactforms = factory(queryset=batch.artifacts.all(), prefix='artifacts')
+
+        if editing:
+            artifactforms = factory(request.POST, queryset=batch.artifacts.all(), prefix='artifacts')
+            artifactvalid = artifactforms.is_valid()
+        else:
+            artifactforms = factory(queryset=batch.artifacts.all(), prefix='artifacts')
 
     if video and batch.videos.count():
         factory = modelformset_factory(models.Video,
-                                       form=VideoForm,
+                                       form=VideoFormNoFile,
                                        max_num = batch.videos.count(),
                                        can_delete = True,
                                        extra=0)
-        videoforms = factory(queryset=batch.videos.all(), prefix='videos')
+        if editing:
+            videoforms = factory(request.POST, queryset=batch.videos.all(), prefix='videos')
+            videovalid = videoforms.is_valid()
+        else:
+            videoforms = factory(queryset=batch.videos.all(), prefix='videos')
 
+    if editing and photovalid and videovalid and artifactvalid:
+        if photoforms:
+            photoforms.save()
+        if videoforms:
+            videoforms.save()
+        if artifactforms:
+            artifactforms.save()
+        request.notifications.add('Successfully saved batch "%s"' % batch.name)
+
+        if request.POST.get('save_submit', False):
+            log.debug('submitting')
+            batch.submitted = True
+            request.notifications.add('Submitted batch "%s" to moderators' % batch.name)
+            batch.save()
+        else:
+            log.debug('POST: %s' % request.POST.keys())
+
+        url = reverse('gallery_batch_list')
+        return HttpResponseRedirect(url)
 
     ctx = RequestContext(request, {
             'batch' : batch,
