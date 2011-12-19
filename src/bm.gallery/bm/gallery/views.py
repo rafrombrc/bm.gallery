@@ -108,6 +108,12 @@ def batch_later(request, batchid):
 
 def batch_list(request):
     batches = models.Batch.objects.filter(user = request.user, submitted=False)
+    if (batches.count()) == 0:
+        batch = models.Batch.objects.autocreate_unsubmitted(request.user)
+        if batch:
+            batches = [batch]
+        else:
+            batches = []
     ctx = RequestContext(request, {
             'batches' : batches,
             })

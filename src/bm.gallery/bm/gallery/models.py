@@ -404,6 +404,34 @@ def get_pending_contributors():
     pending_contributors = pending_contributors.exclude(groups__name='galleries')
     return pending_contributors.order_by('id')
 
+class BatchManager(models.Manager):
+    def autocreate_unsubmitted(self, user):
+        """Automatically create a batch with all unsubmitted pictures"""
+        batch = Batch(user=user)
+        batch.save()
+
+        photos = Photo.objects.filter(owner=user, status='uploaded', batch__isnull=True)
+        for photo in photos:
+            photo.batch = batch
+            photo.save()
+
+        videos = Video.objects.filter(owner=user, status='uploaded', batch__isnull=True)
+        for video in videos:
+            video.batch = batch
+            video.save()
+
+        artifacts = Artifact.objects.filter(owner=user, status='uploaded', batch__isnull=True)
+        for artifact in artifacts:
+            artifact.batch = batch
+            artifact.save()
+
+        if (photos.count() > 0 or videos.count() > 0 or artifacts.count() > 0):
+            return batch
+        else:
+            batch.delete()
+            return None
+
+
 class Batch(models.Model):
     uuid = UUIDField(primary_key=True)
     name = models.CharField(max_length=100, blank=True, null=True)
@@ -411,6 +439,7 @@ class Batch(models.Model):
     date_added = models.DateTimeField(_('date added'),
                                       default=datetime.now, editable=False)
     submitted = models.BooleanField('Submitted', default=False)
+    objects = BatchManager()
 
     def autoname(self):
         return "%s %s" % (self.date_added.strftime('%m-%d-%y %H:%M'), self.user.username)
@@ -554,7 +583,7 @@ def media_from_file(infile, batch, user, manual=False):
         slug = '%s.%d' % (user.username, slugid)
         args = {'owner': user,
                 'slug': slug,
-                'status': 'infile',
+                'status': 'uploaded',
                 'textheight' : 50,
                 'batch': batch}
 
