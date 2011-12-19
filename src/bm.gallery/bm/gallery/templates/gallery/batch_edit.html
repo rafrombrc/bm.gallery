@@ -2,24 +2,83 @@
 
 {% block extra-head %}
 <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/smoothness/jquery-ui.css" id="theme">
+<link rel="stylesheet" href="/static/css/form_style.css" />
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>
-
 <script type='text/javascript'>
 $(function() {
-  $('a.button').button();
+  $('.button').button();
 });
 </script>
 {% endblock %}
 
 {% block content %}
 <h1>Editing Information for Batch &ldquo;{{ batch.name }}&rdquo;</h1>
-<ul>
-  {% for photo in batch.photos.all %}
-  <li>{{ photo }}</li>
-  {% endfor %}
-  {% for video in batch.videos.all %}
-  <li>{{ video }}</li>
-  {% endfor %}
-</ul>
+{% if photoforms or articleforms or videoforms %}
+<p>
+  Fill in the fields below for each of your uploaded items, and then click &ldquo;Save Information&rdquo;.
+</p><p>
+  All <b>bolded</b> items are required.
+</p>
+<div class="styledform">
+<form action="{% url gallery_batch_edit batch.uuid %}" method="post" class="batchedit">
+  <table class="edit">
+    {% if photoforms %}
+      <h2>Photos</h2>
+      {% for form in photoforms %}
+      <tr>
+        <td class="infocell">
+          <fieldset>
+          <div class="required">
+            {{ form.title.label_tag }}{{ form.title }}
+            {% if form.title.errors %}<p class="error">{{ form.title.errors|join:',' }}</p>{% endif %}
+          </div>
+          <div class="required">
+            {{ form.year.label_tag }}{{ form.year }}
+            {% if form.year.errors %}<p class="error">{{ form.year.errors|join:',' }}</p>{% endif %}
+          </div>
+          <div class="field">
+            {{ form.notes.label_tag }}{{ form.notes }}
+            {% if form.notes.errors %}<p class="error">{{ form.notes.errors|join:',' }}</p>{% endif %}
+          </div>
+          <div class="field">
+            {{ form.tags.label_tag }}{{ form.tags }}
+            {% if form.tags.errors %}<p class="error">{{ form.tags.errors|join:',' }}</p>{% endif %}
+          </div>
+          <div class="field">
+            {{ form.categories.label_tag }}
+            <div class="choicelist">{{ form.categories }}</div>
+            {% if form.categories.errors %}<p class="error">{{ form.categories.errors|join:',' }}</p>{% endif %}
+          </div>
+          </fieldset>
+        </td>
+        <td class="imagecell">
+          <img src="{{ form.instance.thumbnail_image.url }}" alt="" />
+          <div class="delete">
+            {{ form.DELETE.label_tag}}{{ form.DELETE }}
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+      <tr>
+        <td>
+          <input type="submit" class="button" value="Save Information" />
+        </td>
+        <td>&nbsp;</td>
+      </tr>
+    {% endif %}
+    {% if articleforms %}
+      <h2>Artifacts</h2>
+      {{ articleforms }}
+      <br/><input type="submit" class="button" value="Save Information" />
+    {% endif %}
+    {% if videoforms %}
+      <h2>Videos</h2>
+      {{ videoforms }}
+      <br/><input type="submit" class="button" value="Save Information" />
+    {% endif %}
+  </table>
+</form>
+</div>
+{% endif %}
 <p><a class="button" href="{% url gallery_batch_delete batch.uuid %}">Delete Entire Batch</a></p>
 {% endblock %}

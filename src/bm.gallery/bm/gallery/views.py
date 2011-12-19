@@ -1,6 +1,6 @@
 from __future__ import absolute_import
 from bm.gallery import models
-from bm.gallery.forms import mediatype_forms, PasswordChangeForm, UserForm, ProfileForm, RegForm, MediaTypeForm, UploadFormSet
+from bm.gallery.forms import mediatype_forms, PasswordChangeForm, UserForm, ProfileForm, RegForm, MediaTypeForm, UploadFormSet, PhotoForm, ArtifactForm, VideoForm
 from bm.gallery.ldap_util import get_ldap_connection, get_user_dn, ldap_add
 from bm.gallery.media import image_types, mediatype_deplural
 from bm.gallery.utils import BetterPaginator, apply_searchable_text_filter, filter_args_from_request, media_klass_from_request
@@ -15,6 +15,7 @@ from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.paginator import EmptyPage, InvalidPage
 from django.core.urlresolvers import reverse
 from django.db.models import Q
+from django.forms.models import modelformset_factory
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseNotAllowed,  HttpResponseNotFound, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext
@@ -135,8 +136,42 @@ def batch_edit(request, batchid):
 
     batch.extract_archives()
 
+    video = batch.user.has_perm('gallery.can_review')
+    photoforms = None
+    videoforms = None
+    artifactforms = None
+
+    if batch.photos.count():
+        factory = modelformset_factory(models.Photo,
+                                       form=PhotoForm,
+                                       max_num = batch.photos.count(),
+                                       can_delete = True,
+                                       extra=0)
+        photoforms = factory(queryset=batch.photos.all(), prefix='photos')
+        log.debug(photoforms.forms[0].as_table())
+
+    if batch.artifacts.count():
+        factory = modelformset_factory(models.Artifact,
+                                       form=ArtifactForm,
+                                       max_num = batch.artifacts.count(),
+                                       can_delete = True,
+                                       extra=0)
+        artifactforms = factory(queryset=batch.artifacts.all(), prefix='artifacts')
+
+    if video and batch.videos.count():
+        factory = modelformset_factory(models.Video,
+                                       form=VideoForm,
+                                       max_num = batch.videos.count(),
+                                       can_delete = True,
+                                       extra=0)
+        videoforms = factory(queryset=batch.videos.all(), prefix='videos')
+
+
     ctx = RequestContext(request, {
             'batch' : batch,
+            'photoforms' : photoforms,
+            'artifactforms' : artifactforms,
+            'videoforms' : videoforms,
             })
     return render_to_response('gallery/batch_edit.html', ctx)
 

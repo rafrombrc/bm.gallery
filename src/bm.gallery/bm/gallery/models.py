@@ -469,7 +469,7 @@ class ArchiveFile(models.Model):
         tdir = tempfile.mkdtemp()
         legal = ('gif','jpg','jpeg','png')
         if self.owner.has_perm('gallery.can_review'):
-            legal += ('avi','mpg','mpeg','m1v','mp2','mpa','mpe','mpv2','asf','mov','qt')
+            legal += ('avi','mpg','mpeg','m1v','mp2','mpa','mpe','mpv2','asf','mov','qt', 'flv')
 
         tname = str(tdir)
         members = []

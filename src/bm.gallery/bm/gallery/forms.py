@@ -69,10 +69,12 @@ class MediaFormBase(forms.ModelForm):
 
 
 class ArtifactForm(MediaFormBase):
+    notes = forms.CharField(widget = forms.Textarea(attrs={'cols': 60, 'rows': 5}))
+
     class Meta:
         model = models.Artifact
         fields = ('title', 'notes', 'year', 'tags', 'image', 'categories')
-        widgets = {'notes': forms.Textarea(attrs={'cols': 60, 'rows': 5})}
+        #widgets = {'notes': forms.Textarea(attrs={'cols': 60, 'rows': 5})}
 
 class MediaTypeForm(forms.Form):
     mediatype = forms.ChoiceField(label=_(u'Media Type'),initial=_(u'photo'),
@@ -102,10 +104,16 @@ PasswordChangeForm.base_fields.keyOrder = ['old_password', 'new_password1',
 
 
 class PhotoForm(MediaFormBase):
+    notes = forms.CharField(widget = forms.Textarea(attrs={'cols': 60, 'rows': 5}))
+
+    def __init__(self, *args, **kwargs):
+        super(PhotoForm, self).__init__(*args, **kwargs)
+        self.fields['categories'].widget = forms.CheckboxSelectMultiple(choices=self.fields['categories'].choices)
+
     class Meta:
         model = models.Photo
         fields = ('title', 'notes', 'year', 'tags', 'image', 'categories')
-        widgets = {'notes': forms.Textarea(attrs={'cols': 60, 'rows': 5})}
+        #widgets = {'notes': forms.Textarea(attrs={'cols': 60, 'rows': 5})}
 
 
 class ProfileForm(forms.ModelForm):
@@ -141,10 +149,12 @@ class UserForm(forms.ModelForm):
 
 
 class VideoForm(MediaFormBase):
+    notes = forms.CharField(widget = forms.Textarea(attrs={'cols': 60, 'rows': 5}))
+
     class Meta:
         model = models.Video
         fields = ('title', 'notes', 'year', 'tags', 'filefield', 'categories')
-        widgets = {'notes': forms.Textarea(attrs={'cols': 60, 'rows': 5})}
+        #widgets = {'notes': forms.Textarea(attrs={'cols': 60, 'rows': 5})}
 
 
 mediatype_forms = dict(

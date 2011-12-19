@@ -25,7 +25,7 @@ var gallery = {
         var types;
 
         if (video) {
-            types = /(\.|\/)(zip|tar|tgz|tbz|tar\.gz|tar\.bz|gif|jpe?g|png|avi|mpe?g|m1v|mp2|mpa|mpe|mpv2|asf|mov|qt)$/i;
+            types = /(\.|\/)(zip|tar|tgz|tbz|tar\.gz|tar\.bz|gif|jpe?g|png|avi|mpe?g|m1v|mp2|mpa|mpe|mpv2|asf|mov|qt|flv)$/i;
         }
         else {
             types = /(\.|\/)(zip|tar|tgz|tbz|tar\.gz|tar\.bz|gif|jpe?g|png)$/i;

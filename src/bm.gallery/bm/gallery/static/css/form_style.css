@@ -1,0 +1,379 @@
+/*
+ * form_style.css
+ * Table-less forms
+ */
+
+.styledform table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 10px;
+}
+
+.styledform form.batchedit td {
+    vertical-align:top;
+    width: 75%;
+}
+
+#content-well .styledform td.imagecell img {
+    margin-top: 10px;
+    padding: 10px;
+    border: 1px solid #d5d1ce;
+}
+
+.styledform form.batchedit td {
+    padding: 10px 0;
+    border-bottom: 1px solid #000;
+}
+
+.styledform .choicelist,
+.styledform form.batchedit fieldset select,
+.styledform form.batchedit fieldset textarea,
+.styledform form.batchedit fieldset input {
+    width: 320px;
+    border: 1px solid #d5d1ce;
+    padding: 2px;
+}
+
+.styledform form.batchedit fieldset select {
+    width: auto;
+}
+
+.styledform form.batchedit td input.button {
+    width: auto;
+}
+
+.styledform form {
+  margin: 0;
+  padding: 0;
+  font-size: 100%;
+  min-width: 560px;
+  max-width: 620px;
+  width: 590px;
+}
+
+.styledform form fieldset {
+  clear: both;
+  font-size: 100%;
+  border: none;
+  margin: 0 0 0 0;
+}
+
+.styledform form fieldset legend {
+  font-size: 150%;
+  font-weight: normal;
+  color: #000000;
+  margin: 0 0 0 0;
+  padding: 0 5px;
+}
+
+.styledform label {
+  font-size: 100%;
+}
+
+.styledform label u {
+  font-style: normal;
+  text-decoration: underline;
+}
+
+.styledform input, select, textarea {
+  font-family: Tahoma, Arial, sans-serif;
+  font-size: 100%;
+  color: #000000;
+}
+
+.styledform textarea {
+  overflow: auto;
+}
+
+.styledform form div {
+  clear: left;
+  display: block;
+  zoom: 1;
+  margin: 5px 0 0 0;
+  padding: 1px 3px;
+}
+
+.styledform form fieldset div.notes {
+  float: right;
+  width: 158px;
+  height: auto;
+  margin: 0 0 10px 10px;
+  padding: 5px;
+  border: 1px solid #666666;
+  background-color: #ffffe1;
+  color: #666666;
+  font-size: 88%;
+}
+
+.styledform form fieldset div.notes h4 {
+  background-image: url(/images/icon_info.gif);
+  background-repeat: no-repeat;
+  background-position: top left;
+  padding: 3px 0 3px 27px;
+  border-width: 0 0 1px 0;
+  border-style: solid;
+  border-color: #666666;
+  color: #666666;
+  font-size: 110%;
+}
+
+.styledform form fieldset div.notes p {
+  margin: 0em 0em 1.2em 0em;
+  color: #666666;
+}
+
+.styledform form fieldset div.notes p.last {
+  margin: 0em;
+}
+
+.styledform form div fieldset {
+  clear: none;
+  border-width: 1px;
+  border-style: solid;
+  border-color: #666666;
+  margin: 0 0 0 144px;
+  padding: 0 5px 5px 5px;
+  width: 197px;
+}
+
+.styledform form div fieldset legend {
+  font-size: 100%;
+  padding: 0 3px 0 9px;
+}
+
+.styledform form div.required fieldset legend {
+  font-weight: bold;
+}
+
+.styledform form div label {
+  display: block;
+  float: left;
+  width: 75px;
+  padding: 3px 5px;
+  margin: 0 0 5px 0;
+  text-align: right;
+}
+
+.styledform form div.optional label, label.optional {
+  font-weight: normal;
+}
+
+.styledform form div.required label, label.required {
+  font-weight: bold;
+}
+
+.styledform form div.choicelist label,
+.styledform form div label.labelCheckbox, form div label.labelRadio {
+  float: none;
+  display: block;
+  width: 200px;
+  zoom: 1;
+  padding: 0;
+  margin: 0 0 5px 142px;
+  text-align: left;
+}
+
+.styledform form div.choicelist label {
+    margin-left: 45px;
+}
+
+.styledform form div fieldset div.choicelist label,
+.styledform form div fieldset label.labelCheckbox, form div fieldset label.labelRadio {
+  margin: 0 0 5px 0;
+  width: 170px;
+}
+
+.styledform form div img {
+  float: left;
+  border: 1px solid #000000;
+  margin: 0 0 5px 0;
+}
+
+.styledform p.error {
+  background-color: #ff0000;
+  background-image: url(/images/icon_error.gif);
+  background-repeat: no-repeat;
+  background-position: 3px 3px;
+  color: #ffffff;
+  padding: 3px 3px 5px 27px;
+  border: 1px solid #000000;
+  margin: auto 100px;
+}
+
+.styledform form div.error {
+  background-color: #ffffe1;
+  background-image: url(/images/required_bg.gif);
+  background-repeat: no-repeat;
+  background-position: top left;
+  color: #666666;
+  border: 1px solid #ff0000;
+}
+
+.styledform form div.error p.error {
+  background-image: url(/images/icon_error.gif);
+  background-position: top left;
+  background-color: transparent;
+  border-style: none;
+  font-size: 88%;
+  font-weight: bold;
+  margin: 0 0 0 118px;
+  width: 200px;
+  color: #ff0000;
+}
+
+.styledform form div select, form div textarea {
+  width: 200px;
+  padding: 1px 3px;
+  margin: 0 0 0 0;
+}
+
+.styledform form div input.inputText, form div input.inputPassword {
+  width: 200px;
+  padding: 1px 3px;
+  margin: 0 0 0 0;
+}
+
+.styledform form div input.inputFile {
+  width: 211px;
+}
+
+.styledform form div select.selectOne, form div select.selectMultiple {
+  width: 211px;
+  padding: 1px 3px;
+}
+
+.styledform form div input.inputCheckbox, form div input.inputRadio, input.inputCheckbox, input.inputRadio {
+  display: inline;
+  height: auto;
+  width: auto;
+  background-color: transparent;
+  border-width: 0;
+  padding: 0;
+  margin: 0 0 0 140px;
+}
+
+.styledform form div.submit {
+  width: 214px;
+  padding: 0 0 0 146px;
+}
+
+.styledform form div.submit div {
+  display: inline;
+  float: left;
+  text-align: left;
+  width: auto;
+  padding: 0;
+  margin: 0;
+}
+
+.styledform form div input.inputSubmit, form div input.inputButton, input.inputSubmit, input.inputButton {
+  background-color: #cccccc;
+  color: #000000;
+  width: auto;
+  padding: 0 6px;
+  margin: 0;
+}
+
+.styledform form div.submit div input.inputSubmit, form div.submit div input.inputButton {
+  float: right;
+  margin: 0 0 0 5px;
+}
+
+.styledform form div small {
+  display: block;
+  margin: 0 0 5px 142px;
+  padding: 1px 3px;
+  font-size: 88%;
+  zoom: 1;
+}
+
+/* form.import.css */
+
+.styledform label img {
+  behavior: url(/behaviors/label_img.htc);
+}
+
+.styledform form fieldset legend {
+  line-height: 150%;
+}
+
+.styledform form input, form select, form textarea {
+  background-color: #ffffff;
+}
+
+.styledform form textarea.expanding {
+  overflow: auto;
+  overflow-x: auto;
+  overflow-y: visible;
+}
+
+.styledform div.optional label:before {
+  content: '';
+}
+
+.styledform div.required label:before {
+  content: '';
+}
+
+.styledform form div label.labelCheckbox, form div label.labelRadio, label.labelCheckbox, label.labelRadio {
+  display: block;
+  width: 190px;
+  zoom: 1;
+  padding: 4px 0 0 18px;
+  text-indent: -18px;
+  line-height: 120%;
+}
+
+.styledform form div label.labelCheckbox input.inputCheckbox, form div label.labelRadio input.inputRadio, label.labelCheckbox input.inputCheckbox, label.labelRadio input.inputRadio {
+  margin: 0;
+}
+
+.styledform form div fieldset input.inputText, form div fieldset input.inputPassword, form div fieldset input.inputFile, form div fieldset textarea.inputTextarea {
+  width: 160px;
+  margin: 0 0 0 18px;
+  margin: expression(setCntr(), '0px 0 0 -124px');
+}
+
+.styledform form div label.compact {
+  display: inline;
+  width: auto;
+  padding: 4px 10px 0 0;
+  text-indent: 0;
+  margin: 0 0 0 0;
+}
+
+.styledform form div.wide label {
+  float: none;
+  display: block;
+}
+
+.styledform form div label.wide {
+  width: 348px;
+}
+
+.styledform form div.wide input.inputText, form div.wide input.inputPassword, form div.wide input.inputFile, form div.wide select, form div.wide textarea {
+  width: 344px;
+  margin: 0;
+}
+
+.styledform form div.notes p, form div small {
+  line-height: 125%;
+}
+
+.styledform form div.wide small {
+  margin: 0 0 5px 0;
+}
+
+.styledform .choicelist ul {
+    margin: -15px 0 0 0;
+}
+
+.styledform .choicelist ul li {
+    list-style: none;
+    width: 150px;
+}
+
+.styledform .choicelist {
+    display: inline;
+    border: none;
+}
