@@ -71,6 +71,7 @@ INSTALLED_APPS = (
     'django_extensions',
     #'signedauth.explore',
     'south',
+    'gunicorn',
 )
 
 try:
