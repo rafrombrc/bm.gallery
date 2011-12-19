@@ -14,7 +14,6 @@ from django.core.cache import cache
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.paginator import EmptyPage, InvalidPage
 from django.core.urlresolvers import reverse
-from django.db import connection
 from django.db.models import Q
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseNotAllowed,  HttpResponseNotFound, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render_to_response
@@ -24,10 +23,7 @@ from django.utils import simplejson
 from django.utils.http import base36_to_int
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.csrf import csrf_protect
-from hachoir_core.stream.input import InputIOStream
 from tagging import models as tagmodels
-import hachoir_metadata
-import hachoir_parser
 import ldap.modlist
 import logging
 import os
@@ -55,6 +51,41 @@ status_map = {'Decline': 'declined',
 if settings.USE_LDAP:
     for option in settings.AUTH_LDAP_GLOBAL_OPTIONS.items():
         ldap.set_option(*option)
+
+def batch_delete(request, batchid):
+    if not request.user.has_perm('gallery.can_upload'):
+        raise PermissionDenied
+
+    try:
+        batch = models.Batch.objects.get(uuid=batchid)
+    except models.Batch.DoesNotExist:
+        log.warn('No such batch: %s', batchid)
+        raise PermissionDenied
+
+    if batch.user != request.user:
+        log.warn('User %s cannot edit batch %s', request.user, batch)
+        raise PermissionDenied
+
+    site = Site.objects.get_current()
+
+    if not request.GET.get('confirmed', False):
+        ctx = RequestContext(request, {
+                'site' : site,
+                'batch' : batch,
+                'confirm' : True
+                })
+        return render_to_response('gallery/batch_delete.html', ctx)
+
+    else:
+        ctx = RequestContext(request, {
+                'site' : site,
+                'batch' : batch.name,
+                'confirm' : False
+                })
+
+        batch.delete()
+        return render_to_response('gallery/batch_delete.html', ctx)
+
 
 def batch_later(request, batchid):
     log.debug('later view')
@@ -101,6 +132,8 @@ def batch_edit(request, batchid):
     if batch.user != request.user:
         log.warn('User %s cannot edit batch %s', request.user, batch)
         raise PermissionDenied
+
+    batch.extract_archives()
 
     ctx = RequestContext(request, {
             'batch' : batch,
@@ -909,7 +942,7 @@ def upload(request):
     if not request.user.has_perm('gallery.can_upload'):
         raise PermissionDenied
 
-    videoPerm =  request.user.has_perm('gallery.can_review')
+    videoPerm = request.user.has_perm('gallery.can_review')
 
     batch = models.Batch.objects.create(user = request.user)
     ctx = RequestContext(request, {
@@ -988,58 +1021,35 @@ def upload_ajax(request):
         batch.save()
 
     uploaded = request.FILES.get('file')
-
-    stream = InputIOStream(uploaded)
-    parser = hachoir_parser.guessParser(stream)
-    metadata = hachoir_metadata.extractMetadata(parser)
-    model_class = models.klass_from_metadata(metadata, uploaded.name)
-    mediatype = model_class.mediatype()
-
-    if not model_class:
-        # TODO: need to test different errors
-        data = [{'error' : 'Could not read file: %s, perhaps it is corrupt' % uploaded}]
-
-    else:
-        cursor = connection.cursor()
-        cursor.execute("SELECT nextval ('gallery_mediabase_id_seq')")
-        slugid = cursor.fetchone()[0]
-
-        slug = '%s.%d' % (request.user.username, slugid)
-        args = {'owner': request.user,
-                'slug': slug,
-                'status': 'uploaded',
-                'textheight' : 50,
-                'batch': batch}
-
-        if hasattr(model_class, 'IKOptions'):
-            # we're some type of image object
-            args['image'] = uploaded
-        else:
-            args['filefield'] = uploaded
-        for dimension in ('width', 'height'):
-            dimvalue = metadata.get(dimension, False)
-            if dimvalue:
-                args[dimension] = dimvalue
-        if mediatype == 'video' and not uploaded.name.endswith('flv'):
-            args['encode'] = True
-
-        if metadata.has('creation_date'):
-            year = metadata.get('creation_date', None)
-            if year:
-                year = year.year
-                args['year'] = year
-
-        instance = model_class(**args)
-        instance.save()
-        log.debug('Saved %s' % instance.get_fname())
+    f, ext = uploaded.name.rsplit('.',1)
+    ext = ext.lower()
+    if ext in ('zip','tar','tar.gz','tgz','tbz','tar.bz'):
+        log.debug('saving ArchiveFile')
+        instance = models.ArchiveFile.objects.create(
+                owner = request.user,
+                filefield = uploaded,
+                batch = batch)
 
         data = [{'name': uploaded.name,
-                 'url': instance.image.url,
-                 'thumbnail_url': instance.thumbnail_image.url,
-                 'delete_url': reverse('gallery_delete_ajax', args=[mediatype, instance.id]),
+                 'url': '',
+                 'thumbnail_url': '',
+                 'delete_url': reverse('gallery_delete_ajax', args=['archive', instance.id]),
                  'delete_type': "DELETE",
                  'batchid' : batch.uuid,
                  'batchname' : batch.name}]
+    else:
+        instance = models.media_from_file(uploaded, batch, request.user)
+
+        if instance is None:
+            data = [{'error' : 'Could not read file: %s, perhaps it is corrupt' % uploaded.name}]
+        else:
+            data = [{'name': uploaded.name,
+                     'url': instance.image.url,
+                     'thumbnail_url': instance.thumbnail_image.url,
+                     'delete_url': reverse('gallery_delete_ajax', args=[instance.mediatype(), instance.id]),
+                     'delete_type': "DELETE",
+                     'batchid' : batch.uuid,
+                     'batchname' : batch.name}]
 
     response = JSONResponse(data, {}, response_mimetype(request))
     response['Content-Disposition'] = 'inline; filename=files.json'
@@ -1081,3 +1091,4 @@ class JSONResponse(HttpResponse):
     def __init__(self,obj='',json_opts={},mimetype="application/json",*args,**kwargs):
         content = simplejson.dumps(obj,**json_opts)
         super(JSONResponse,self).__init__(content,mimetype,*args,**kwargs)
+

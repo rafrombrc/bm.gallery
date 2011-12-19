@@ -1,5 +1,25 @@
 {% extends "gallery/base.html" %}
 
+{% block extra-head %}
+<link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/smoothness/jquery-ui.css" id="theme">
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>
+
+<script type='text/javascript'>
+$(function() {
+  $('a.button').button();
+});
+</script>
+{% endblock %}
+
 {% block content %}
 <h1>Editing Information for Batch &ldquo;{{ batch.name }}&rdquo;</h1>
+<ul>
+  {% for photo in batch.photos.all %}
+  <li>{{ photo }}</li>
+  {% endfor %}
+  {% for video in batch.videos.all %}
+  <li>{{ video }}</li>
+  {% endfor %}
+</ul>
+<p><a class="button" href="{% url gallery_batch_delete batch.uuid %}">Delete Entire Batch</a></p>
 {% endblock %}

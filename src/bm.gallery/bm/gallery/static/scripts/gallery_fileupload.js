@@ -66,8 +66,13 @@ var gallery = {
 
     show_continue : function(data) {
         if (!gallery.hasContinue) {
-            var btns = '<p class="continuebutton"><a href="/batch/' + data.batchid + '/edit/">Add Information</a> or <a href="/batch/' + data.batchid + '/later/">Come back later</a>';
-            gallery.fileelement.before(btns).after(btns);
+            var txt = "<p>In the next step, you'll add information to each photo, such as the title and year.</p>",
+            btns = '<p class="continuebutton">' +
+                '<a href="/batch/' + data.batchid +'/edit/">Add Photo Information</a> ' +
+                'or <a href="/batch/' + data.batchid + '/later/">Come back later</a>' +
+                '</p>';
+
+            gallery.fileelement.before(txt + btns).after(btns);
 
             $('#update_batchname').remove();
             $('#id_batchname').after('&nbsp;<span id="update_batchname"><a class="button" href="#">Update</a></span>');

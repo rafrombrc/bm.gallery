@@ -14,6 +14,7 @@ urlpatterns = patterns(
     url(r'^upload/batchname$', 'batchname_ajax', name="gallery_batchname_ajax"),
     url(r'^delete/(?P<mediatype>.*)/(?P<pictureid>\d+)$', 'delete_ajax', name="gallery_delete_ajax"),
     url(r'^batch/(?P<batchid>.*)/later/$', 'batch_later', name='gallery_batch_later'),
+    url(r'^batch/(?P<batchid>.*)/delete/$', 'batch_delete', name='gallery_batch_delete'),
     url(r'^batch/(?P<batchid>.*)/edit/$', 'batch_edit', name='gallery_batch_edit'),
     url(r'^batch$', 'batch_list', name='gallery_batch_list'),
     url(r'^browse$', 'browse'),
