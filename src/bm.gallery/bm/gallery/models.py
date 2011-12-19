@@ -437,6 +437,24 @@ class Batch(models.Model):
 
         super(Batch, self).save(*args, **kwargs)
 
+    def submit_all(self):
+        def submit_media(obj):
+            if obj.status == '':
+                obj.status = 'submitted'
+                obj.save()
+
+        for photo in self.photos.all():
+            submit_media(photo)
+
+        for video in self.videos.all():
+            submit_media(video)
+
+        for artifact in self.artifacts.all():
+            submit_media(artifact)
+
+        self.submitted = True
+        self.save()
+
     def __unicode__(self):
         name = self.name
         if not name:

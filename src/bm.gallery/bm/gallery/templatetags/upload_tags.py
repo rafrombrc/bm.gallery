@@ -75,3 +75,9 @@ def upload_js():
         </tr>
     </script>
     """
+
+
+@register.inclusion_tag('gallery/batch_edit_item.html')
+def render_gallery_edit(form):
+    """Simple inclusion tag to render a single item of a batch edit"""
+    return {'form' : form}

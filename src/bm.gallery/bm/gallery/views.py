@@ -75,18 +75,13 @@ def batch_delete(request, batchid):
                 'batch' : batch,
                 'confirm' : True
                 })
+
         return render_to_response('gallery/batch_delete.html', ctx)
 
     else:
-        ctx = RequestContext(request, {
-                'site' : site,
-                'batch' : batch.name,
-                'confirm' : False
-                })
-
+        request.notifications.add('Deleted batch "%s"' % batch.name)
         batch.delete()
-        return render_to_response('gallery/batch_delete.html', ctx)
-
+        return HttpResponseRedirect(reverse('gallery_batch_list'))
 
 def batch_later(request, batchid):
     log.debug('later view')
@@ -190,17 +185,17 @@ def batch_edit(request, batchid):
             videoforms.save()
         if artifactforms:
             artifactforms.save()
-        request.notifications.add('Successfully saved batch "%s"' % batch.name)
 
         if request.POST.get('save_submit', False):
             log.debug('submitting')
-            batch.submitted = True
+            batch.submit_all();
             request.notifications.add('Submitted batch "%s" to moderators' % batch.name)
-            batch.save()
+            url = reverse('gallery_batch_list')
         else:
+            request.notifications.add('Successfully saved batch "%s"' % batch.name)
             log.debug('POST: %s' % request.POST.keys())
+            url = reverse('gallery_batch_edit', args=(batch.uuid,))
 
-        url = reverse('gallery_batch_list')
         return HttpResponseRedirect(url)
 
     ctx = RequestContext(request, {

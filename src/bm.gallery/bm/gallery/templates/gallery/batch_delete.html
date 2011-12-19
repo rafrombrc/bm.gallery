@@ -13,7 +13,6 @@ $(function() {
 
 
 {% block content %}
-{% if confirm %}
 <h1>Confirming Deletion of Batch &ldquo;{{ batch.name }}&rdquo;</h1>
 <p>Warning, this will delete {{ batch.photos.all.count }} image{{ batch.photos.count|pluralize }} {% if batch.videos.count %} and {{ batch.videos.count }} video{{ batch.videos.count|pluralize }} {% endif %}in the batch</p>
 <p>
@@ -21,8 +20,4 @@ $(function() {
   or
   <a class="button" href="{% url gallery_batch_edit batch.uuid %}">Cancel</a>
 </p>
-{% else %}
-<h1>Success</h1>
-<p>You have successfully deleted the batch &ldquo;{{ batch }}&rdquo;</p>
-{% endif %}
 {% endblock %}

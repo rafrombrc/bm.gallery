@@ -1,5 +1,7 @@
 {% extends "gallery/base.html" %}
 
+{% load upload_tags %}
+
 {% block extra-head %}
 <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/smoothness/jquery-ui.css" id="theme">
 <link rel="stylesheet" href="/static/css/form_style.css" />
@@ -39,34 +41,12 @@ $(function() {
   {% if artifactforms %}{{ articleforms.management_form }}{% endif %}
   <table class="edit">
     {% if photoforms %}
-      <h2>Photos</h2>
+      <tr><td><h2>Photos</h2></td></tr>
       {% for form in photoforms %}
       <tr>
         <td class="infocell">
           {{ form.imagebase_ptr }}
-          <fieldset>
-          <div class="required">
-            {{ form.title.label_tag }}{{ form.title }}
-            {% if form.title.errors %}<p class="error">{{ form.title.errors|join:',' }}</p>{% endif %}
-          </div>
-          <div class="required">
-            {{ form.year.label_tag }}{{ form.year }}
-            {% if form.year.errors %}<p class="error">{{ form.year.errors|join:',' }}</p>{% endif %}
-          </div>
-          <div class="field">
-            {{ form.notes.label_tag }}{{ form.notes }}
-            {% if form.notes.errors %}<p class="error">{{ form.notes.errors|join:',' }}</p>{% endif %}
-          </div>
-          <div class="field">
-            {{ form.tags.label_tag }}{{ form.tags }}
-            {% if form.tags.errors %}<p class="error">{{ form.tags.errors|join:',' }}</p>{% endif %}
-          </div>
-          <div class="field">
-            <b>{{ form.categories.label_tag }}</b>
-            <div class="choicelist">{{ form.categories }}</div>
-            {% if form.categories.errors %}<p class="error">{{ form.categories.errors|join:',' }}</p>{% endif %}
-          </div>
-          </fieldset>
+          {% render_gallery_edit form %}
         </td>
         <td class="imagecell">
           <img src="{{ form.instance.thumbnail_image.url }}" alt="" />
@@ -84,15 +64,53 @@ $(function() {
         <td>&nbsp;</td>
       </tr>
     {% endif %}
-    {% if articleforms %}
-      <h2>Artifacts</h2>
-      {{ articleforms }}
-      <br/><input type="submit" class="button" value="Save Information" />
+    {% if artifactforms %}
+      <tr><td><h2>Artifacts</h2></td></tr>
+      {% for form in artifactforms %}
+      <tr>
+        <td class="infocell">
+          {{ form.imagebase_ptr }}
+          {% render_gallery_edit form %}
+        </td>
+        <td class="imagecell">
+          <img src="{{ form.instance.thumbnail_image.url }}" alt="" />
+          <div class="delete">
+            {{ form.DELETE.label_tag}}{{ form.DELETE }}
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+      <tr>
+        <td>
+          <input type="submit" class="button" name="save_submit" value="Save and Submit" />
+          <input type="submit" class="button" name="save_edit" value="Save and Keep Editing" />
+        </td>
+        <td>&nbsp;</td>
+      </tr>
     {% endif %}
     {% if videoforms %}
-      <h2>Videos</h2>
-      {{ videoforms }}
-      <br/><input type="submit" class="button" value="Save Information" />
+      <tr><td><h2>Videos</h2></td></tr>
+      {% for form in videoforms %}
+      <tr>
+        <td class="infocell">
+          {{ form.mediaebase_ptr }}
+          {% render_gallery_edit form %}
+        </td>
+        <td class="imagecell">
+          <img src="{{ form.instance.thumbnail_image.url }}" alt="" />
+          <div class="delete">
+            {{ form.DELETE.label_tag}}{{ form.DELETE }}
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+      <tr>
+        <td>
+          <input type="submit" class="button" name="save_submit" value="Save and Submit" />
+          <input type="submit" class="button" name="save_edit" value="Save and Keep Editing" />
+        </td>
+        <td>&nbsp;</td>
+      </tr>
     {% endif %}
   </table>
 </form>
