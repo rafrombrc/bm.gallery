@@ -42,26 +42,26 @@ var gallery = {
             return true;
         });
 
-        // Load existing files:
-        $.getJSON($(element + ' form').prop('action'), function (files) {
-            var fu = $('#fileupload').data('fileupload');
-            fu._adjustMaxNumberOfFiles(-files.length);
-            fu._renderDownload(files)
-                .appendTo($(element + ' .files'))
-                .fadeIn(function () {
-                    // Fix for IE7 and lower:
-                    $(this).show();
-                });
-        });
+        // // Load existing files:
+        // $.getJSON($(element + ' form').prop('action'), function (files) {
+        //     var fu = $('#fileupload').data('fileupload');
+        //     fu._adjustMaxNumberOfFiles(-files.length);
+        //     fu._renderDownload(files)
+        //         .appendTo($(element + ' .files'))
+        //         .fadeIn(function () {
+        //             // Fix for IE7 and lower:
+        //             $(this).show();
+        //         });
+        // });
 
-        // Open download dialogs via iframes,
-        // to prevent aborting current uploads:
-        $(element + ' .files a:not([target^=_blank])').live('click', function (e) {
-            e.preventDefault();
-            $('<iframe style="display:none;"></iframe>')
-                .prop('src', this.href)
-                .appendTo('body');
-        });
+        // // Open download dialogs via iframes,
+        // // to prevent aborting current uploads:
+        // $(element + ' .files a:not([target^=_blank])').live('click', function (e) {
+        //     e.preventDefault();
+        //     $('<iframe style="display:none;"></iframe>')
+        //         .prop('src', this.href)
+        //         .appendTo('body');
+        // });
     },
 
     show_continue : function(data) {
