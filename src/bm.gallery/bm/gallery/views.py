@@ -558,6 +558,7 @@ def media_view(request, mediatype, username, slug, piston=False):
     if show_set_context:
         # since we go in reverse order, prev is newer
         prev = resource_qs.filter(id__gt=resource.id)
+        prevurl = None
         if prev.count():
             try:
                 prevurl = prev[0].get_absolute_url()
