@@ -1,4 +1,4 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+{% load conmodnav %}<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
           "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
   <head>
@@ -95,6 +95,7 @@
           </form>
         </div> <!-- end search-bar -->
 
+        {% block con_mod_nav %}{% con_mod_nav %}{% endblock %}
         {% if notifications %}
         <div id="notifications">
           <ul class="notifications">
@@ -106,19 +107,17 @@
         {% endif %}
 
 
+        <div id="well-wrapper">
         <!-- +++++ CONTENT WELL STARTS +++++ -->
         <div id="content-well">
           <!-- +++++ CONTENT AREA STARTS +++++ -->
           <div id="content-area">
-
-            {% load conmodnav %}
-            {% block con_mod_nav %}{% con_mod_nav %}{% endblock %}
             {% block content %}{% endblock %}
-
             <!-- +++++ CONTENT AREA ENDS +++++ -->
           </div> <!-- end content-area -->
           <!-- +++++ CONTENT WELL ENDS +++++ -->
         </div> <!-- end content-well -->
+        </div>
 
         <div id="footer">
           <p>&copy; All images are copyright in their respective year, by both the photographer and Burning Man</p>

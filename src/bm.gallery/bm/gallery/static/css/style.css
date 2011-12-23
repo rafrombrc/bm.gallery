@@ -60,7 +60,6 @@ a img {
 	}
 
 #main-content {
-	background: url(/static/content-header-bg.gif) no-repeat center 25px;
 	width: 950px;
 	margin: auto;
 	padding: 0;
@@ -75,6 +74,13 @@ a img {
 #search-bar form {
     height: 15px;
     padding: 9px 0 0 0;
+}
+
+#well-wrapper {
+    background: url(/static/content-header-bg.gif) no-repeat center -15px;
+    width: 100%;
+    padding-top:22px;
+    min-height: 100px;
 }
 
 #content-well {
@@ -303,7 +309,7 @@ p {
     }
 
 #notifications {
-	margin: 40px 80px 0 90px;
+	margin: 0px 80px 0 90px;
 	width: auto;
 	height: 30px;
 	background: url(/static/galleries-notification-bg.gif) no-repeat top left;
@@ -597,7 +603,7 @@ a.listingPrevious img {
 
 
 #contrib-mod-nav {
-	display: inline;
+	display: block;
 	margin: 0 0 10px 0;
 	padding: 8px 0 6px 0;
 	height: 29px;
