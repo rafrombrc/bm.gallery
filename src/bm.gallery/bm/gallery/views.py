@@ -281,10 +281,13 @@ def browse(request):
             # non-reviewers are restricted to seeing their own
             # submissions if they search on a status other than
             # 'approved'
+            if request.user.is_anonymous():
+                raise PermissionDenied
             filter_kwargs['owner'] = request.user
         filter_kwargs['status'] = status
     else:
         filter_kwargs['status'] = status
+
     full_results = klass.objects.filter(*filter_args, **filter_kwargs)
     # reverse the order so most recent is first
     full_results = full_results.order_by('id').reverse()
@@ -715,16 +718,20 @@ def media_view(request, mediatype, username, slug, piston=False):
     if show_set_context:
         # since we go in reverse order, prev is newer
         prev = resource_qs.filter(id__gt=resource.id)
+        prevurl = None
         if prev.count():
-            prevurl = prev[0].get_absolute_url()
-        else:
-            prevurl = None
+            try:
+                prevurl = prev[0].get_absolute_url()
+            except models.ImageBase.DoesNotExist, models.MediaBase.DoesNotExist:
+                pass
         # next is older (i.e. lower id)
         next = resource_qs.filter(id__lt=resource.id).reverse()
+        nexturl = None
         if next.count():
-            nexturl = next[0].get_absolute_url()
-        else:
-            nexturl = None
+            try:
+                nexturl = next[0].get_absolute_url()
+            except models.ImageBase.DoesNotExist, models.MediaBase.DoesNotExist:
+                pass
         # now reverse the entire set to calculate pages
         resource_qs = resource_qs.reverse()
         # <index> out of <count> items
