@@ -559,15 +559,18 @@ def media_view(request, mediatype, username, slug, piston=False):
         # since we go in reverse order, prev is newer
         prev = resource_qs.filter(id__gt=resource.id)
         if prev.count():
-            prevurl = prev[0].get_absolute_url()
-        else:
-            prevurl = None
+            try:
+                prevurl = prev[0].get_absolute_url()
+            except models.ImageBase.DoesNotExist, models.MediaBase.DoesNotExist:
+                pass
         # next is older (i.e. lower id)
         next = resource_qs.filter(id__lt=resource.id).reverse()
+        nexturl = None
         if next.count():
-            nexturl = next[0].get_absolute_url()
-        else:
-            nexturl = None
+            try:
+                nexturl = next[0].get_absolute_url()
+            except models.ImageBase.DoesNotExist, models.MediaBase.DoesNotExist:
+                pass
         # now reverse the entire set to calculate pages
         resource_qs = resource_qs.reverse()
         # <index> out of <count> items
