@@ -177,6 +177,10 @@
     margin-left: 45px;
 }
 
+.styledform form div.choicelist label.error {
+    margin-left: 0;
+}
+
 .styledform form div fieldset div.choicelist label,
 .styledform form div fieldset label.labelCheckbox, form div fieldset label.labelRadio {
   margin: 0 0 5px 0;
@@ -189,6 +193,8 @@
   margin: 0 0 5px 0;
 }
 
+
+.styledform label.error,
 .styledform p.error {
   background-color: #ff0000;
   background-image: url(/images/icon_error.gif);
@@ -197,7 +203,17 @@
   color: #ffffff;
   padding: 3px 3px 5px 27px;
   border: 1px solid #000000;
-  margin: auto 100px;
+  margin: auto 85px;
+  display: inline;
+}
+
+.styledform p.error {
+    font-weight: normal !important;
+    white-space: nowrap;
+    padding: 3px 20px;
+    float: none;
+    clear: both;
+    width: auto;
 }
 
 .styledform form div.error {
@@ -376,4 +392,21 @@
 .styledform .choicelist {
     display: inline;
     border: none;
+}
+
+.styledform div.required div.choicelist p.error {
+    margin-left: 0;
+}
+
+.styledform div.required div.choicelist label {
+    font-weight: normal;
+}
+
+.styledform h2 {
+    float: left;
+}
+
+.styledform .rightbuttons {
+    float: right;
+    margin-top: 13px;
 }

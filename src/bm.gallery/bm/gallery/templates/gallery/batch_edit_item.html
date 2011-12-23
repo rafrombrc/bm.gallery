@@ -3,7 +3,7 @@
     {{ form.title.label_tag }}{{ form.title }}
     {% if form.title.errors %}<p class="error">{{ form.title.errors|join:',' }}</p>{% endif %}
   </div>
-  <div class="required">
+  <div class="required digits">
     {{ form.year.label_tag }}{{ form.year }}
     {% if form.year.errors %}<p class="error">{{ form.year.errors|join:',' }}</p>{% endif %}
   </div>
@@ -15,8 +15,8 @@
     {{ form.tags.label_tag }}{{ form.tags }}
     {% if form.tags.errors %}<p class="error">{{ form.tags.errors|join:',' }}</p>{% endif %}
   </div>
-  <div class="field">
-    <b>{{ form.categories.label_tag }}</b>
+  <div class="required field">
+    {{ form.categories.label_tag }}
     <div class="choicelist">{{ form.categories }}</div>
     {% if form.categories.errors %}<p class="error">{{ form.categories.errors|join:',' }}</p>{% endif %}
   </div>

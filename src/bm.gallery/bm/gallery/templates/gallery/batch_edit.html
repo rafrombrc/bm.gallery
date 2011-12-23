@@ -6,23 +6,9 @@
 <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/smoothness/jquery-ui.css" id="theme">
 <link rel="stylesheet" href="/static/css/form_style.css" />
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>
-<script type='text/javascript'>
-$(function() {
-  $('.button').button();
-  $('div.delete input').click(function() {
-    var elt = $(this), prefix, pos, work;
-    if (elt.val() === "on") {
-      prefix = elt.attr('id');
-      pos = prefix.search('DELETE');
-      prefix = prefix.substr(0, pos);
-      work = $('#' + prefix + 'title');
-      if (!work.val()) {
-        work.val('TO DELETE');
-      }
-    }
-  });
-});
-</script>
+<script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js"></script>
+<script type="text/javascript" src="/static/scripts/columnizer.js"></script>
+<script type="text/javascript" src="/static/scripts/gallery_batch_edit.js"></script>
 {% endblock %}
 
 {% block content %}
@@ -33,7 +19,7 @@ $(function() {
 </p><p>
   All <b>bolded</b> items are required.
 </p>
-<div class="styledform">
+<div class="styledform" id="batchedit">
 <form action="{% url gallery_batch_edit batch.uuid %}" method="post" class="batchedit">
   {% csrf_token %}
   {% if photoforms %}{{ photoforms.management_form }}{% endif %}
@@ -41,7 +27,15 @@ $(function() {
   {% if artifactforms %}{{ articleforms.management_form }}{% endif %}
   <table class="edit">
     {% if photoforms %}
-      <tr><td><h2>Photos</h2></td></tr>
+      <tr>
+        <td colspan='2'>
+          <h2>Photos</h2>
+          <span class="rightbuttons">
+            <input type="submit" class="button" name="save_submit" value="Save and Submit" />
+            <input type="submit" class="button" name="save_edit" value="Save and Keep Editing" />
+          </span>
+        </td>
+      </tr>
       {% for form in photoforms %}
       <tr>
         <td class="infocell">
@@ -56,16 +50,17 @@ $(function() {
         </td>
       </tr>
       {% endfor %}
-      <tr>
-        <td>
-          <input type="submit" class="button" name="save_submit" value="Save and Submit" />
-          <input type="submit" class="button" name="save_edit" value="Save and Keep Editing" />
-        </td>
-        <td>&nbsp;</td>
-      </tr>
     {% endif %}
     {% if artifactforms %}
-      <tr><td><h2>Artifacts</h2></td></tr>
+      <tr>
+        <td colspan='2'>
+          <h2>Artifacts</h2>
+          <span class="rightbuttons">
+            <input type="submit" class="button" name="save_submit" value="Save and Submit" />
+            <input type="submit" class="button" name="save_edit" value="Save and Keep Editing" />
+          </span>
+        </td>
+      </tr>
       {% for form in artifactforms %}
       <tr>
         <td class="infocell">
@@ -89,7 +84,15 @@ $(function() {
       </tr>
     {% endif %}
     {% if videoforms %}
-      <tr><td><h2>Videos</h2></td></tr>
+      <tr>
+        <td colspan='2'>
+          <h2>Videos</h2>
+          <span class="rightbuttons">
+            <input type="submit" class="button" name="save_submit" value="Save and Submit" />
+            <input type="submit" class="button" name="save_edit" value="Save and Keep Editing" />
+          </span>
+        </td>
+      </tr>
       {% for form in videoforms %}
       <tr>
         <td class="infocell">
