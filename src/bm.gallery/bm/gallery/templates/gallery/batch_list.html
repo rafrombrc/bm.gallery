@@ -5,7 +5,12 @@
 {% url gallery_batch_edit batch.uuid as url %}{% url gallery_batch_list as indexurl %}
 <ul>
   {% for batch in batches %}
-  <li><a href="{% url gallery_batch_edit batch.uuid %}">Edit {{ batch.name }}</a></li>{% endfor %}
+  <li>
+    <a href="{% url gallery_batch_edit batch.uuid %}">Edit {{ batch.name }}</a>
+    ({{ batch.photos.count }} photo{{ batch.photos.count|pluralize }}
+    {{ batch.videos.count }} video{{ batch.videos.count|pluralize }}
+    {{ batch.artifacts.count }} artifact{{ batch.artifacts.count|pluralize }})
+  </li>{% endfor %}
 </ul>
 {% if not batches %}
 <p>None</p>

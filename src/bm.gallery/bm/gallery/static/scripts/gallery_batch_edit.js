@@ -36,7 +36,6 @@ var batchedit = {
         });
 
         $('form.batchedit').validate({
-            debug: true,
             errorElement: 'p',
             errorPlacement: function(error, element) {
                 error.appendTo(element.parents('div.required'));
