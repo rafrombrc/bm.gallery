@@ -1,6 +1,10 @@
 from bm.gallery import models as galmodels
 from django.contrib import admin
 
+class BatchAdmin(admin.ModelAdmin):
+    list_display = ('user', 'name', 'date_added', 'submitted')
+    search_fields = ('user__username','name')
+    filter_fields = ('submitted')
 
 class ProfileAdmin(admin.ModelAdmin):
     list_display = ('id', 'user', 'url', 'num_pictures')
@@ -23,6 +27,7 @@ class PhotoAdmin(ImageAdmin):
     list_display = ('id', 'title', 'year', 'image_link', 'in_press_gallery',)
 
 
+admin.site.register(galmodels.Batch, BatchAdmin)
 admin.site.register(galmodels.Photo, PhotoAdmin)
 admin.site.register(galmodels.Artifact, ImageAdmin)
 admin.site.register(galmodels.Video)

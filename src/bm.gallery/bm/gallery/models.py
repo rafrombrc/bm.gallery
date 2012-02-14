@@ -490,6 +490,9 @@ class Batch(models.Model):
             name = self.autoname()
         return u"Batch: %s for %s" % (name, self.user.username)
 
+    class Meta:
+        verbose_name_plural = 'Batches'
+
 
 class ArchiveFile(models.Model):
     owner = models.ForeignKey(authmodels.User)
