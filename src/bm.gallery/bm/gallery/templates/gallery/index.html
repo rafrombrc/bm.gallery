@@ -1,5 +1,11 @@
 {% extends "gallery/base.html" %}
 
+{% block extra-head %}
+<style type="text/css">
+body #well-wrapper { padding-top: 22px; }
+</style>
+{% endblock %}
+
 {% block content %}
 
 <div>
@@ -13,7 +19,7 @@
 	<p><a href="{{ browse_url }}">Browse Photos</a></p></div>
     </div>
     {% endwith %}
-    
+
     {% with "/browse?mediatype=artifact" as browse_url %}
     <div class="promo-item-odd">
       <div class="image-promo"><a href="{{ browse_url }}"><img src="{{ MEDIA_URL }}home-arti-intro.jpg" width="200" height="134" alt="Browse Playa Artifacts" title="Browse Playa Artifacts" class="align-left" /></a></div>
@@ -24,7 +30,7 @@
     </div>
     {% endwith %}
 
-   
+
     {% with "/browse?mediatype=video" as browse_url %}
     <div class="promo-item">
       <div class="image-promo"><a href="{{ browse_url }}"><img src="{{ MEDIA_URL }}home-video-intro.jpg" width="200" height="134" alt="Browse Video" title="Browse Video" class="align-left" /></a></div>
@@ -62,8 +68,8 @@
 
       <p><strong>Getting Started</strong><br />
 	Please view the <a href="{% url bm.gallery.views.faq %}">FAQ</a> to learn about selection criteria and how you can contribute images and artifacts.</p>
-      
-      
+
+
      <!--{% if random_page %}<p><a href="{% url bm.gallery.views.browse %}?mediatype=photo&page={{ random_page }}">link to random browse set</a></p>{% endif %} -->
     </div>
   </div>

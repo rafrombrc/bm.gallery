@@ -79,7 +79,7 @@ a img {
 #well-wrapper {
     background: url(/static/content-header-bg.gif) no-repeat center -15px;
     width: 100%;
-    padding-top:22px;
+    padding-top:47px;
     min-height: 100px;
 }
 
@@ -615,6 +615,7 @@ a.listingPrevious img {
 	text-align: right;
 	width: auto;
 	margin: 0 3px 20px 0;
+        padding-bottom: 10px;
 }
 
 #contrib-mod-nav li {
@@ -632,7 +633,7 @@ a.listingPrevious img {
 
 #contrib-mod-nav li a {
 	font-size: 1.05em;
-	padding: 6px 0;
+	padding: 7px 0 !important;
 	margin: 0 2px;
 	font-weight: bold;
 	text-decoration: none;
