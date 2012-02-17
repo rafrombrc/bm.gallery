@@ -269,7 +269,7 @@ a {
     color: #900;
 }
 
-p a:link, p a:visited {
+p a:link, p a:visited, span.rightbuttons a {
     color: #900;
     text-decoration: none;
 }
