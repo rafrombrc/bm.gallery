@@ -3,14 +3,11 @@ var batchedit = {
         $('.button').button();
         $('div.delete input').click(function() {
             var elt = $(this), prefix, pos, work;
-            if (elt.val() === "on") {
-                prefix = elt.attr('id');
-                pos = prefix.search('DELETE');
-                prefix = prefix.substr(0, pos);
-                work = $('#' + prefix + 'title');
-                if (!work.val()) {
-                    work.val('TO DELETE');
-                }
+            if (elt.attr('checked') === "checked") {
+                elt.parents('tr').find('.required').removeClass('required').addClass('wasrequired');
+            }
+            else {
+                elt.parents('tr').find('.wasrequired').removeClass('wasrequired').addClass('required');
             }
         });
 
