@@ -34,6 +34,10 @@
     padding: 2px;
 }
 
+.styledform form.batchedit fieldset div.li_container input {
+    width: auto;
+}
+
 .styledform form.batchedit fieldset select {
     width: auto;
 }
