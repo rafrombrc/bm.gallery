@@ -25,6 +25,10 @@
     border-bottom: 1px solid #000;
 }
 
+.styledform form.batchedit td.noline {
+    border-bottom: 0px solid transparent;
+}
+
 .styledform .choicelist,
 .styledform form.batchedit fieldset select,
 .styledform form.batchedit fieldset textarea,
@@ -410,7 +414,7 @@
     float: left;
 }
 
-.styledform .rightbuttons {
+.styledform .rightbuttons, p.rightbuttons {
     float: right;
     margin-top: 13px;
 }

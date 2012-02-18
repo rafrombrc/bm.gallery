@@ -274,6 +274,12 @@ p a:link, p a:visited, span.rightbuttons a {
     text-decoration: none;
 }
 
+.rightbuttons h2 {
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
 p a:hover {
 	color: #c33;
     text-decoration: none;
