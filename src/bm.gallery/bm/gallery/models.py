@@ -468,7 +468,7 @@ class Batch(models.Model):
 
     def submit_all(self):
         def submit_media(obj):
-            if obj.status == '':
+            if obj.status.lower() == 'uploaded':
                 obj.status = 'submitted'
                 obj.save()
 

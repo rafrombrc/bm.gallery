@@ -24,7 +24,7 @@ class ImageAdmin(admin.ModelAdmin):
 
 
 class PhotoAdmin(ImageAdmin):
-    list_display = ('id', 'title', 'year', 'image_link', 'in_press_gallery',)
+    list_display = ('id', 'title', 'year', 'image_link', 'in_press_gallery', 'status')
 
 
 admin.site.register(galmodels.Batch, BatchAdmin)
