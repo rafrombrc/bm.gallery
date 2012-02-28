@@ -132,7 +132,7 @@ a img {
 }
 
 #footer {
-	background: url(/static/content-footer-bg.gif) no-repeat -10px center;
+	background: url(/static/content-footer-bg.gif) no-repeat top center;
 	width: 950px;
 	height: 300px;
 	margin: auto;
