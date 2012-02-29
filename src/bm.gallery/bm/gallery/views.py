@@ -1,6 +1,6 @@
 from __future__ import absolute_import
 from bm.gallery import models
-from bm.gallery.forms import mediatype_forms, PasswordChangeForm, UserForm, ProfileForm, RegForm, MediaTypeForm, UploadFormSet
+from bm.gallery.forms import mediatype_forms, PasswordChangeForm, UserForm, ProfileForm, RegForm, PhotoFormNoFile, ArtifactFormNoFile, VideoFormNoFile
 from bm.gallery.ldap_util import get_ldap_connection, get_user_dn, ldap_add
 from bm.gallery.media import image_types, mediatype_deplural
 from bm.gallery.utils import BetterPaginator, apply_searchable_text_filter, filter_args_from_request, media_klass_from_request
@@ -9,23 +9,22 @@ from django.contrib.auth import authenticate, login, models as authmodels
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import SetPasswordForm
 from django.contrib.auth.tokens import default_token_generator
+from django.contrib.sites.models import Site
 from django.core.cache import cache
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.paginator import EmptyPage, InvalidPage
 from django.core.urlresolvers import reverse
-from django.db import connection
 from django.db.models import Q
+from django.forms.models import modelformset_factory
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseNotAllowed,  HttpResponseNotFound, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext
 from django.template.loader import render_to_string
+from django.utils import simplejson
 from django.utils.http import base36_to_int
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.csrf import csrf_protect
-from hachoir_core.stream.input import InputIOStream
 from tagging import models as tagmodels
-import hachoir_metadata
-import hachoir_parser
 import ldap.modlist
 import logging
 import os
@@ -53,6 +52,165 @@ status_map = {'Decline': 'declined',
 if settings.USE_LDAP:
     for option in settings.AUTH_LDAP_GLOBAL_OPTIONS.items():
         ldap.set_option(*option)
+
+def batch_delete(request, batchid):
+    if not request.user.has_perm('gallery.can_upload'):
+        raise PermissionDenied
+
+    try:
+        batch = models.Batch.objects.get(uuid=batchid)
+    except models.Batch.DoesNotExist:
+        log.warn('No such batch: %s', batchid)
+        raise PermissionDenied
+
+    if batch.user != request.user:
+        log.warn('User %s cannot edit batch %s', request.user, batch)
+        raise PermissionDenied
+
+    site = Site.objects.get_current()
+
+    if not request.GET.get('confirmed', False):
+        ctx = RequestContext(request, {
+                'site' : site,
+                'batch' : batch,
+                'confirm' : True
+                })
+
+        return render_to_response('gallery/batch_delete.html', ctx)
+
+    else:
+        request.notifications.add('Deleted batch "%s"' % batch.name)
+        batch.delete()
+        return HttpResponseRedirect(reverse('gallery_batch_list'))
+
+def batch_later(request, batchid):
+    log.debug('later view')
+    if not request.user.has_perm('gallery.can_upload'):
+        raise PermissionDenied
+
+    try:
+        batch = models.Batch.objects.get(uuid=batchid)
+    except models.Batch.DoesNotExist:
+        log.warn('No such batch: %s', batchid)
+        raise PermissionDenied
+
+    if batch.user != request.user:
+        log.warn('User %s cannot edit batch %s', request.user, batch)
+        raise PermissionDenied
+
+    site = Site.objects.get_current()
+
+    ctx = RequestContext(request, {
+            'site' : site,
+            'batch' : batch,
+            })
+    return render_to_response('gallery/batch_later.html', ctx)
+
+def batch_list(request):
+    batches = models.Batch.objects.filter(user = request.user, submitted=False)
+    if (batches.count()) == 0:
+        batch = models.Batch.objects.autocreate_unsubmitted(request.user)
+        if batch:
+            batches = [batch]
+        else:
+            batches = []
+    ctx = RequestContext(request, {
+            'batches' : batches,
+            })
+    return render_to_response('gallery/batch_list.html', ctx)
+
+
+def batch_edit(request, batchid):
+    log.debug('batch edit view')
+    if not request.user.has_perm('gallery.can_upload'):
+        raise PermissionDenied
+
+    try:
+        batch = models.Batch.objects.get(uuid=batchid)
+    except models.Batch.DoesNotExist:
+        log.warn('No such batch: %s', batchid)
+        raise PermissionDenied
+
+    if batch.user != request.user:
+        log.warn('User %s cannot edit batch %s', request.user, batch)
+        raise PermissionDenied
+
+    batch.extract_archives()
+
+    video = batch.user.has_perm('gallery.can_review')
+    photoforms = None
+    photovalid = True
+    videoforms = None
+    videovalid = True
+    artifactforms = None
+    artifactvalid = True
+
+    editing = request.method == "POST"
+
+    if batch.photos.count():
+        factory = modelformset_factory(models.Photo,
+                                       form=PhotoFormNoFile,
+                                       max_num = batch.photos.count(),
+                                       can_delete = True,
+                                       extra=0)
+        if editing:
+            photoforms = factory(request.POST, queryset=batch.photos.all(), prefix='photos')
+            photovalid = photoforms.is_valid()
+        else:
+            photoforms = factory(queryset=batch.photos.all(), prefix='photos')
+
+    if batch.artifacts.count():
+        factory = modelformset_factory(models.Artifact,
+                                       form=ArtifactFormNoFile,
+                                       max_num = batch.artifacts.count(),
+                                       can_delete = True,
+                                       extra=0)
+
+        if editing:
+            artifactforms = factory(request.POST, queryset=batch.artifacts.all(), prefix='artifacts')
+            artifactvalid = artifactforms.is_valid()
+        else:
+            artifactforms = factory(queryset=batch.artifacts.all(), prefix='artifacts')
+
+    if video and batch.videos.count():
+        factory = modelformset_factory(models.Video,
+                                       form=VideoFormNoFile,
+                                       max_num = batch.videos.count(),
+                                       can_delete = True,
+                                       extra=0)
+        if editing:
+            videoforms = factory(request.POST, queryset=batch.videos.all(), prefix='videos')
+            videovalid = videoforms.is_valid()
+        else:
+            videoforms = factory(queryset=batch.videos.all(), prefix='videos')
+
+    if editing and photovalid and videovalid and artifactvalid:
+        if photoforms:
+            photoforms.save()
+        if videoforms:
+            videoforms.save()
+        if artifactforms:
+            artifactforms.save()
+
+        if request.POST.get('save_submit', False):
+            log.debug('submitting')
+            batch.submit_all();
+            request.notifications.add('Submitted batch "%s" to moderators' % batch.name)
+            url = reverse('gallery_batch_list')
+        else:
+            request.notifications.add('Successfully saved batch "%s"' % batch.name)
+            log.debug('POST: %s' % request.POST.keys())
+            url = reverse('gallery_batch_edit', args=(batch.uuid,))
+
+        return HttpResponseRedirect(url)
+
+    ctx = RequestContext(request, {
+            'batch' : batch,
+            'photoforms' : photoforms,
+            'artifactforms' : artifactforms,
+            'videoforms' : videoforms,
+            })
+    return render_to_response('gallery/batch_edit.html', ctx)
 
 def contributors(request):
     letter = request.GET.get('letter', 'a')
@@ -123,10 +281,13 @@ def browse(request):
             # non-reviewers are restricted to seeing their own
             # submissions if they search on a status other than
             # 'approved'
+            if request.user.is_anonymous():
+                raise PermissionDenied
             filter_kwargs['owner'] = request.user
         filter_kwargs['status'] = status
     else:
         filter_kwargs['status'] = status
+
     full_results = klass.objects.filter(*filter_args, **filter_kwargs)
     # reverse the order so most recent is first
     full_results = full_results.order_by('id').reverse()
@@ -282,7 +443,6 @@ def index(request):
     context = RequestContext(request, template_map)
     return render_to_response('gallery/index.html',
                               context_instance=context)
-
 
 def legacy_lookup(request, mediatype):
     return _id_lookup(request, mediatype, 'legacy_id')
@@ -848,6 +1008,7 @@ def upgrade_ie(request):
                               context_instance=context)
 
 
+
 @login_required
 def upload(request):
     """View that displays the upload form and processes upload form
@@ -856,93 +1017,157 @@ def upload(request):
     # form even if the user is already logged in.  That sucks, so we
     # don't use it, and we do the permission check in the code
     # instead.
+    log.debug('upload view')
     if not request.user.has_perm('gallery.can_upload'):
         raise PermissionDenied
-    if request.method == 'POST':
-        mediatype_form = MediaTypeForm(request.POST)
-        upload_formset = UploadFormSet(request.POST, request.FILES)
-        if 'cancel' in request.POST:
-            request.notifications.add(_('Upload canceled.'))
-            return HttpResponseRedirect(reverse('bm.gallery.views.index'))
-        if (mediatype_form.data['mediatype'] == 'video' and
-            not request.user.has_perm('gallery.can_review')):
-            raise PermissionDenied
-        if mediatype_form.is_valid() and upload_formset.is_valid():
-            instances = []
-            if len([u for u in upload_formset.cleaned_data if u]) >= 10:
-                raise PermissionDenied
-            for cleaned_data in upload_formset.cleaned_data:
-                if not cleaned_data:
-                    continue
-                file_ = cleaned_data['file_']
-                # extract media metadata
-                stream = InputIOStream(file_)
-                parser = hachoir_parser.guessParser(stream)
-                metadata = hachoir_metadata.extractMetadata(parser)
-                # create model instance
-                mediatype = mediatype_form.cleaned_data['mediatype']
-                model_class = models.mediatype_map[mediatype]['klass']
 
-                cursor = connection.cursor()
-                cursor.execute("SELECT nextval ('gallery_mediabase_id_seq')")
-                id_ = cursor.fetchone()[0]
-                slug = '%s.%d' % (request.user.username, id_)
+    videoPerm = request.user.has_perm('gallery.can_review')
 
-                model_args = {'id': id_, 'owner': request.user, 'slug': slug,
-                              'status': 'uploaded'}
-                if hasattr(model_class, 'IKOptions'):
-                    # we're some type of image object
-                    model_args['image'] = file_
-                else:
-                    model_args['filefield'] = file_
-                for dimension in ('width', 'height'):
-                    dimvalue = metadata.get(dimension, False)
-                    if dimvalue:
-                        model_args[dimension] = dimvalue
-                if mediatype == 'video' and not file_.name.endswith('flv'):
-                    model_args['encode'] = True
-                try:
-                    year = metadata.get('creation_date').year
-                    model_args['year'] = year
-                except ValueError:
-                    # no creation date in metadata
-                    pass
-                instance = model_class(**model_args)
-                instances.append(instance)
-            # we're not using Django's transaction middleware, so we
-            # fake our own transaction behavior here.  should probably
-            # switch to using the middleware...
-            try:
-                for instance in instances:
-                    instance.save()
-            except Exception, e:
-                # BJK: I don't like catching naked exceptions, so lets at least log it
-                # for troubleshooting later
-                log.error("Error saving the image, we're going to delete the instance, error follows")
-                log.error(e)
-                for instance in instances:
-                    if instance._get_pk_val() is not None:
-                        instance.delete()
-                raise e
-            request.notifications.add(_('Resources uploaded.'))
-            url = '%s/edit' % instance.get_absolute_url()
-            batch_length = len(instances)
-            if batch_length > 1:
-                ids = [str(i.id) for i in instances]
-                url = '%s?batch_length=%d&ids=%s' % (url, batch_length,
-                                                     ','.join(ids))
-            return HttpResponseRedirect(url)
+    batch = models.Batch.objects.create(user = request.user)
+    ctx = RequestContext(request, {
+            'videoPermission' : videoPerm,
+            'batch' : batch
+            })
+
+    return render_to_response('gallery/upload.html', ctx)
+
+@login_required
+def batchname_ajax(request):
+    """View that accepts ajax upload requests, returning a JSON response"""
+    log.debug('batchname ajax view')
+    if not request.user.has_perm('gallery.can_upload'):
+        return None
+
+    if request.method != "POST":
+        return JSONResponse(False, {}, response_mimetype(request))
+
+    log.debug("Batch: %s" % request.POST['batch'])
+    batchid = request.POST.get('batch', None)
+    if not batchid:
+        log.warn('no Batch')
+        raise PermissionDenied
+    try:
+        batch = models.Batch.objects.get(uuid=batchid)
+    except models.Batch.DoesNotExist:
+        log.warn('No such batch: %s', batchid)
+        raise PermissionDenied
+
+    if batch.user != request.user:
+        log.warn('User %s cannot edit batch %s', request.user, batch)
+        raise PermissionDenied
+
+    batchname = request.POST.get('batchname', None)
+
+    if batchname:
+        batch.name = batchname
+        log.debug('updating batch %s to name: %s', batch, batchname)
+        batch.save()
+
+    return JSONResponse(batchname, {}, response_mimetype(request))
+
+@login_required
+def upload_ajax(request):
+    """View that accepts ajax upload requests, returning a JSON response"""
+    log.debug('upload ajax view')
+    if not request.user.has_perm('gallery.can_upload'):
+        return None
+
+    #videoPerm =  request.user.has_perm('gallery.can_review')
+
+    if request.method != "POST":
+        return JSONResponse(False, {}, response_mimetype(request))
+
+    log.debug("Batch: %s" % request.POST['batch'])
+    batchid = request.POST.get('batch', None)
+    if not batchid:
+        log.warn('no Batch')
+        raise PermissionDenied
+    try:
+        batch = models.Batch.objects.get(uuid=batchid)
+    except models.Batch.DoesNotExist:
+        log.warn('No such batch: %s', batchid)
+        raise PermissionDenied
+
+    if batch.user != request.user:
+        log.warn('User %s cannot edit batch %s', request.user, batch)
+        raise PermissionDenied
+
+    batchname = request.POST.get('batchname', None)
+
+    if batchname:
+        batch.name = batchname
+        log.debug('updating batch %s to name: %s', batch, batchname)
+        batch.save()
+
+    uploaded = request.FILES.get('file')
+    f, ext = uploaded.name.rsplit('.',1)
+    ext = ext.lower()
+    if ext in ('zip','tar','tar.gz','tgz','tbz','tar.bz'):
+        log.debug('saving ArchiveFile')
+        instance = models.ArchiveFile.objects.create(
+                owner = request.user,
+                filefield = uploaded,
+                batch = batch)
+
+        data = [{'name': uploaded.name,
+                 'url': '',
+                 'thumbnail_url': '',
+                 'delete_url': reverse('gallery_delete_ajax', args=['archive', instance.id]),
+                 'delete_type': "DELETE",
+                 'batchid' : batch.uuid,
+                 'batchname' : batch.name}]
     else:
-        mediatype_form = MediaTypeForm()
-        upload_formset = UploadFormSet()
-    # only moderators can upload video
-    if not request.user.has_perm('gallery.can_review'):
-        mediatype_field = mediatype_form.fields['mediatype']
-        choices = mediatype_field.choices
-        mediatype_field.choices = [choice for choice in choices
-                                   if choice[0] != 'video']
-    return render_to_response('gallery/upload.html',
-                              {'mediatype_form': mediatype_form,
-                               'upload_formset': upload_formset},
-                              context_instance=RequestContext(request))
+        instance = models.media_from_file(uploaded, batch, request.user)
+
+        if instance is None:
+            data = [{'error' : 'Could not read file: %s, perhaps it is corrupt' % uploaded.name}]
+        else:
+            data = [{'name': uploaded.name,
+                     'url': instance.image.url,
+                     'thumbnail_url': instance.thumbnail_image.url,
+                     'delete_url': reverse('gallery_delete_ajax', args=[instance.mediatype(), instance.id]),
+                     'delete_type': "DELETE",
+                     'batchid' : batch.uuid,
+                     'batchname' : batch.name}]
+
+    response = JSONResponse(data, {}, response_mimetype(request))
+    response['Content-Disposition'] = 'inline; filename=files.json'
+    return response
+
+@login_required
+def delete_ajax(request, mediatype, pictureid):
+    if not (mediatype in ('image','photo','video')):
+        log.error('Bad mediatype: %s', mediatype)
+        raise PermissionDenied
+
+    if not request.user.has_perm('gallery.can_upload'):
+        raise PermissionDenied
+
+    media_class = models.mediatype_map[mediatype]['klass']
+
+    try:
+        obj = media_class.objects.get(pk=pictureid)
+    except media_class.DoesNotExist:
+        log.debug('Media object #%i not found', pictureid)
+        return JSONResponse(False, {}, response_mimetype(request))
+
+    if not obj.owner == request.user:
+        log.warn("User %s cannot delete %s because he or she doesn't own it", request.user, obj)
+        raise PermissionDenied
+
+    log.info('Deleted %s at user request', obj)
+    obj.delete()
+    return JSONResponse(True, {}, response_mimetype(request))
+
+def response_mimetype(request):
+    if "application/json" in request.META['HTTP_ACCEPT']:
+        return "application/json"
+    else:
+        return "text/plain"
+
+class JSONResponse(HttpResponse):
+    """JSON response class."""
+    def __init__(self,obj='',json_opts={},mimetype="application/json",*args,**kwargs):
+        content = simplejson.dumps(obj,**json_opts)
+        super(JSONResponse,self).__init__(content,mimetype,*args,**kwargs)
 

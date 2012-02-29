@@ -1,0 +1,8 @@
+{% extends "gallery/base.html" %}
+
+{% block content %}
+<h1>Finishing Your Upload Later</h1>
+{% url gallery_batch_edit batch.uuid as url %}{% url gallery_batch_list as indexurl %}
+<p>To finish editing &ldquo;{{ batch.name }}&rdquo; later, you can go to<br/><a href="{{ url }}">{{ site.domain }}{{ url }}</a></p>
+<p>You can always view all your unsubmitted batches at <a href="{{ indexurl }}">{{ site.domain }}{{ indexurl }}</a></p>
+{% endblock %}

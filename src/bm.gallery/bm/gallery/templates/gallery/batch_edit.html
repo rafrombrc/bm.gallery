@@ -1,0 +1,131 @@
+{% extends "gallery/base.html" %}
+
+{% load upload_tags %}
+
+{% block extra-head %}
+<link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/smoothness/jquery-ui.css" id="theme">
+<link rel="stylesheet" href="/static/css/form_style.css" />
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>
+<script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js"></script>
+<script type="text/javascript" src="/static/scripts/columnizer.js"></script>
+<script type="text/javascript" src="/static/scripts/gallery_batch_edit.js?ver=2"></script>
+{% endblock %}
+
+{% block content %}
+<h1 class='spaced'>Editing Information for Batch &ldquo;{{ batch.name }}&rdquo;</h1>
+{% if photoforms or articleforms or videoforms %}
+<p>
+  Fill in the fields below for each of your uploaded items, and then click &ldquo;Save Information&rdquo;.
+</p><p>
+  All <b>bolded</b> items are required.
+</p>
+<div class="styledform" id="batchedit">
+<form action="{% url gallery_batch_edit batch.uuid %}" method="post" class="batchedit">
+  {% csrf_token %}
+  {% if photoforms %}{{ photoforms.management_form }}{% endif %}
+  {% if videoforms %}{{ videoforms.management_form }}{% endif %}
+  {% if artifactforms %}{{ articleforms.management_form }}{% endif %}
+  <table class="edit">
+    {% if photoforms %}
+      <tr>
+        <td colspan='2'>
+          <h2>Photos</h2>
+          <p class="rightbuttons">
+            <input type="submit" class="button" name="save_submit" value="Save and Submit" />
+            <input type="submit" class="button" name="save_edit" value="Save and Keep Editing" />
+            <input type="button" class="button" onclick="javascript:window.location = '{% url gallery_batch_delete batch.uuid %}'; return false;" value="Delete Entire Batch" />
+          </p>
+        </td>
+
+      </tr>
+      {% for form in photoforms %}
+      <tr>
+        <td class="infocell">
+          {{ form.imagebase_ptr }}
+          {% render_gallery_edit form %}
+        </td>
+        <td class="imagecell">
+          <img src="{{ form.instance.thumbnail_image.url }}" alt="" />
+          <div class="delete">
+            {{ form.DELETE.label_tag}}{{ form.DELETE }}
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    {% endif %}
+    {% if artifactforms %}
+      <tr>
+        <td colspan='2'>
+          <h2>Artifacts</h2>
+          <span class="rightbuttons">
+            <input type="submit" class="button" name="save_submit" value="Save and Submit" />
+            <input type="submit" class="button" name="save_edit" value="Save and Keep Editing" />
+          </span>
+        </td>
+      </tr>
+      {% for form in artifactforms %}
+      <tr>
+        <td class="infocell">
+          {{ form.imagebase_ptr }}
+          {% render_gallery_edit form %}
+        </td>
+        <td class="imagecell">
+          <img src="{{ form.instance.thumbnail_image.url }}" alt="" />
+          <div class="delete">
+            {{ form.DELETE.label_tag}}{{ form.DELETE }}
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+      <tr>
+        <td>
+          <input type="submit" class="button" name="save_submit" value="Save and Submit" />
+          <input type="submit" class="button" name="save_edit" value="Save and Keep Editing" />
+        </td>
+        <td>&nbsp;</td>
+      </tr>
+    {% endif %}
+    {% if videoforms %}
+      <tr>
+        <td colspan='2'>
+          <h2>Videos</h2>
+          <span class="rightbuttons">
+            <input type="submit" class="button" name="save_submit" value="Save and Submit" />
+            <input type="submit" class="button" name="save_edit" value="Save and Keep Editing" />
+          </span>
+        </td>
+      </tr>
+      {% for form in videoforms %}
+      <tr>
+        <td class="infocell">
+          {{ form.mediaebase_ptr }}
+          {% render_gallery_edit form %}
+        </td>
+        <td class="imagecell">
+          <img src="{{ form.instance.thumbnail_image.url }}" alt="" />
+          <div class="delete">
+            {{ form.DELETE.label_tag}}{{ form.DELETE }}
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+      <tr>
+        <td>
+          <input type="submit" class="button" name="save_submit" value="Save and Submit" />
+          <input type="submit" class="button" name="save_edit" value="Save and Keep Editing" />
+        </td>
+        <td>&nbsp;</td>
+      </tr>
+    {% endif %}
+    <td colspan='2' class="noline">
+      <p class="rightbuttons">
+        <input type="submit" class="button" name="save_submit" value="Save and Submit" />
+        <input type="submit" class="button" name="save_edit" value="Save and Keep Editing" />
+        <input type="button" class="button" onclick="javascript:window.location = '{% url gallery_batch_delete batch.uuid %}'; return false;" value="Delete Entire Batch" />
+      </p>
+    </td>
+  </table>
+</form>
+</div>
+{% endif %}
+{% endblock %}

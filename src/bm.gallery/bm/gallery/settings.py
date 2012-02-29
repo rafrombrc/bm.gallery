@@ -3,13 +3,12 @@ import os.path
 
 APP_ROOT = os.path.normpath(os.path.dirname(__file__))
 
-DATABASE_ENGINE = 'postgresql_psycopg2'
-
 SITE_ID = 1
 
 USE_I18N = True
 
 MEDIA_ROOT = '%s/static/' % APP_ROOT
+
 MEDIA_URL = '/static/'
 
 GALLERIES_URL = '/g/'
@@ -24,12 +23,12 @@ FLOWPLAYER_CONFIG = {
     }
 
 TEMPLATE_LOADERS = (
-    'django.template.loaders.filesystem.load_template_source',
+    'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.load_template_source',
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
-    "django.core.context_processors.auth",
+    "django.contrib.auth.context_processors.auth",
     'django.core.context_processors.request',
     "django.core.context_processors.debug",
     "django.core.context_processors.i18n",
@@ -70,8 +69,9 @@ INSTALLED_APPS = (
     'bm.gallery',
     'signedauth',
     'django_extensions',
-    'signedauth.explore',
+    #'signedauth.explore',
     'south',
+    'gunicorn',
 )
 
 try:
@@ -92,4 +92,6 @@ AUTHENTICATION_BACKENDS = (
 
 USE_LDAP = True
 
+# Load the local settings
 from bm.gallery.local_settings import *
+

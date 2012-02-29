@@ -49,11 +49,12 @@ class MediaFormBase(forms.ModelForm):
     def save(self, *args, **kwargs):
         """Write the tags value"""
         retval = super(MediaFormBase, self).save(*args, **kwargs)
-        self.instance.tags = self.data['tags']
+        tags = self.cleaned_data['tags']
+        self.instance.tags = tags
         # tagged objects can only be queried by model, so we also write
         # the tags to the mediabase model so we can query for all types
         # with a given tag
-        self.instance.mediabase_ptr.tags = self.data['tags']
+        self.instance.mediabase_ptr.tags = tags
         return retval
 
     def clean_year(self):
@@ -73,6 +74,19 @@ class ArtifactForm(MediaFormBase):
         model = models.Artifact
         fields = ('title', 'notes', 'year', 'tags', 'image', 'categories')
         widgets = {'notes': forms.Textarea(attrs={'cols': 60, 'rows': 5})}
+
+
+class ArtifactFormNoFile(MediaFormBase):
+    notes = forms.CharField(widget = forms.Textarea(attrs={'cols': 60, 'rows': 5}))
+
+    def __init__(self, *args, **kwargs):
+        super(ArtifactFormNoFile, self).__init__(*args, **kwargs)
+        self.fields['categories'].widget = forms.CheckboxSelectMultiple(choices=self.fields['categories'].choices)
+
+    class Meta:
+        model = models.Artifact
+        fields = ('title', 'notes', 'year', 'tags', 'categories')
+
 
 class MediaTypeForm(forms.Form):
     mediatype = forms.ChoiceField(label=_(u'Media Type'),initial=_(u'photo'),
@@ -102,10 +116,26 @@ PasswordChangeForm.base_fields.keyOrder = ['old_password', 'new_password1',
 
 
 class PhotoForm(MediaFormBase):
+    def __init__(self, *args, **kwargs):
+        super(PhotoForm, self).__init__(*args, **kwargs)
+
     class Meta:
         model = models.Photo
         fields = ('title', 'notes', 'year', 'tags', 'image', 'categories')
         widgets = {'notes': forms.Textarea(attrs={'cols': 60, 'rows': 5})}
+
+class PhotoFormNoFile(MediaFormBase):
+    notes = forms.CharField(widget = forms.Textarea(attrs={'cols': 60, 'rows': 5}))
+
+    def __init__(self, *args, **kwargs):
+        super(PhotoFormNoFile, self).__init__(*args, **kwargs)
+        self.fields['categories'].widget = forms.CheckboxSelectMultiple(choices=self.fields['categories'].choices)
+        self.fields['notes'].required = False
+        self.fields['categories'].required = False
+
+    class Meta:
+        model = models.Photo
+        fields = ('title', 'notes', 'year', 'tags', 'categories')
 
 
 class ProfileForm(forms.ModelForm):
@@ -146,6 +176,18 @@ class VideoForm(MediaFormBase):
         fields = ('title', 'notes', 'year', 'tags', 'filefield', 'categories')
         widgets = {'notes': forms.Textarea(attrs={'cols': 60, 'rows': 5})}
 
+
+class VideoFormNoFile(MediaFormBase):
+    notes = forms.CharField(widget = forms.Textarea(attrs={'cols': 60, 'rows': 5}))
+
+    def __init__(self, *args, **kwargs):
+        super(VideoFormNoFile, self).__init__(*args, **kwargs)
+        self.fields['categories'].widget = forms.CheckboxSelectMultiple(choices=self.fields['categories'].choices)
+
+
+    class Meta:
+        model = models.Video
+        fields = ('title', 'notes', 'year', 'tags', 'categories')
 
 mediatype_forms = dict(
     photo=PhotoForm,

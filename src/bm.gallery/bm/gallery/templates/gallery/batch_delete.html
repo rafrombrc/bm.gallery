@@ -1,0 +1,23 @@
+{% extends "gallery/base.html" %}
+
+{% block extra-head %}
+<link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/smoothness/jquery-ui.css" id="theme">
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>
+
+<script type='text/javascript'>
+$(function() {
+  $('a.button').button();
+});
+</script>
+{% endblock %}
+
+
+{% block content %}
+<h1>Confirming Deletion of Batch &ldquo;{{ batch.name }}&rdquo;</h1>
+<p>Warning, this will delete {{ batch.photos.all.count }} image{{ batch.photos.count|pluralize }} {% if batch.videos.count %} and {{ batch.videos.count }} video{{ batch.videos.count|pluralize }} {% endif %}in the batch</p>
+<p>
+  <a class="button" href="{% url gallery_batch_delete batch.uuid %}?confirmed=1">Yes Delete</a>
+  or
+  <a class="button" href="{% url gallery_batch_edit batch.uuid %}">Cancel</a>
+</p>
+{% endblock %}

@@ -1,23 +1,31 @@
 from __future__ import absolute_import
+from bm.gallery.resize import resize_image
+from bm.gallery.watermark import add_watermark
 from datetime import datetime
 from django.conf import settings
 from django.contrib.auth import models as authmodels
+from django.core.files import File
 from django.core.files.storage import FileSystemStorage
 from django.core.validators import email_re
-from django.db import models
+from django.db import models, connection
 from django.db.models import signals
 from django.utils.translation import ugettext_lazy as _
+from django_extensions.db.fields import UUIDField
+from hachoir_core.stream.input import InputIOStream
 from imagekit.lib import Image
 from imagekit.models import ImageModel
 from imagekit.specs import Accessor
-from bm.gallery.watermark import add_watermark
-from bm.gallery.resize import resize_image
 from tagging import models as tagmodels
+import hachoir_metadata
+import hachoir_parser
 import logging
 import os
 import shutil
+import tarfile
+import tempfile
+import zipfile
 
-log = logging.getLogger(__name__)
+log = logging.getLogger('gallery.models')
 
 def get_media_path(instance, filename=''):
     return os.path.join(instance.mediadir, instance.owner.username, filename)
@@ -131,6 +139,12 @@ class MediaBase(models.Model):
                 if attrpath:
                     return '%s.%s' % (attrpath, inst_cls.__name__.lower())
 
+    def delete(self, *args, **kwargs):
+        cursor = connection.cursor()
+        cursor.execute('delete from gallery_searchable_text where mediabase_ptr_id=%i' % self.id)
+        self.delete_file()
+        super(MediaBase, self).delete()
+
     def get_child_instance(self):
         """Returns an instance of the appropriate model subclass for
         this instance."""
@@ -138,6 +152,9 @@ class MediaBase(models.Model):
         for attr in self.child_attrpath.split('.'):
             child = getattr(child, attr, child)
         return child
+
+    def get_fname(self):
+        return self.image.file.name
 
     @property
     def mediadir(self):
@@ -225,15 +242,34 @@ class ImageBase(ImageModel, MediaBase):
         self.full_image = full_image_accessor
         return super(ImageBase, self).__init__(*args, **kwargs)
 
+    def delete_file(self):
+        try:
+            thumb = self.thumbnail_image
+            if thumb and os.path.exists(thumb.file.name):
+                fn = thumb.file.name
+                log.debug('deleting: %s', fn)
+                os.unlink(fn)
+        except IOError:
+            pass
+
+        if os.path.exists(self.image.path):
+            log.debug('deleting: %s', self.image.path)
+            os.unlink(self.image.path)
+
 class Photo(ImageBase):
     """Burning Man Photo Gallery photo object"""
     mediadir = 'photos'
     legacy_id = models.PositiveIntegerField(editable=False, null=True,
                                             db_index=True)
     in_press_gallery = models.BooleanField(default=False, db_index=True)
+    batch = models.ForeignKey('Batch', related_name='photos', null=True)
 
     def __unicode__(self):
         return "Photo: %s/%s" % (self.owner.username, self.slug)
+
+    @classmethod
+    def mediatype(klass):
+        return 'photo'
 
     @property
     def image_data(self):
@@ -289,6 +325,11 @@ class Artifact(ImageBase):
     mediadir = 'artifacts'
     legacy_id = models.PositiveIntegerField(editable=False, null=True,
                                             db_index=True)
+    batch = models.ForeignKey('Batch', related_name='artifacts', null=True)
+
+    @classmethod
+    def mediatype(klass):
+        return 'artifact'
 
     def __unicode__(self):
         return "Artifact: %s/%s" % (self.owner.username, self.slug)
@@ -309,12 +350,31 @@ class Video(MediaBase):
     # flag for whether or not video needs to be encoded
     encode = models.BooleanField(default=False)
     mediadir = 'videos'
+    batch = models.ForeignKey('Batch', related_name='videos', null=True)
+
+    @classmethod
+    def mediatype(klass):
+        return 'video'
 
     def __unicode__(self):
         return "Video: %s/%s" % (self.owner.username, self.slug)
 
+    def delete_file(self):
+        if os.path.exists(self.image.path):
+            log.debug('deleting: %s', self.image.path)
+            os.unlink(self.filefield.path)
+
+        thumb = self.thumbnail_image
+        if thumb and os.path.exists(thumb.file.name):
+            fn = thumb.file.name
+            log.debug('deleting: %s', fn)
+            os.unlink(fn)
+
     def get_display_url(self):
         return self.filefield.url
+
+    def get_fname(self):
+        return self.filefield.file.name
 
     @property
     def thumbnail_image(self):
@@ -343,3 +403,243 @@ def get_pending_contributors():
     pending_contributors = authmodels.User.objects
     pending_contributors = pending_contributors.exclude(groups__name='galleries')
     return pending_contributors.order_by('id')
+
+class BatchManager(models.Manager):
+    def autocreate_unsubmitted(self, user):
+        """Automatically create a batch with all unsubmitted pictures"""
+        batch = Batch(user=user)
+        batch.save()
+
+        photos = Photo.objects.filter(owner=user, status='uploaded', batch__isnull=True)
+        for photo in photos:
+            photo.batch = batch
+            photo.save()
+
+        videos = Video.objects.filter(owner=user, status='uploaded', batch__isnull=True)
+        for video in videos:
+            video.batch = batch
+            video.save()
+
+        artifacts = Artifact.objects.filter(owner=user, status='uploaded', batch__isnull=True)
+        for artifact in artifacts:
+            artifact.batch = batch
+            artifact.save()
+
+        if (photos.count() > 0 or videos.count() > 0 or artifacts.count() > 0):
+            return batch
+        else:
+            batch.delete()
+            return None
+
+
+class Batch(models.Model):
+    uuid = UUIDField(primary_key=True)
+    name = models.CharField(max_length=100, blank=True, null=True)
+    user = models.ForeignKey(authmodels.User)
+    date_added = models.DateTimeField(_('date added'),
+                                      default=datetime.now, editable=False)
+    submitted = models.BooleanField('Submitted', default=False)
+    objects = BatchManager()
+
+    def autoname(self):
+        return "%s %s" % (self.date_added.strftime('%m-%d-%y %H:%M'), self.user.username)
+
+    def delete(self, *args, **kwargs):
+        for f in self.photos.all():
+            f.delete()
+
+        for f in self.videos.all():
+            f.delete()
+
+        super(Batch, self).delete(*args, **kwargs)
+
+    def extract_archives(self):
+        """Extracts all archives and delete the ArchiveFile objects"""
+        for archive in self.archives.all():
+            log.debug('extracting: %s', archive)
+            archive.extract()
+            archive.delete()
+
+    def save(self, *args, **kwargs):
+        if not self.name:
+            self.name = self.autoname()
+
+        super(Batch, self).save(*args, **kwargs)
+
+    def submit_all(self):
+        def submit_media(obj):
+            if obj.status.lower() == 'uploaded':
+                obj.status = 'submitted'
+                obj.save()
+
+        for photo in self.photos.all():
+            submit_media(photo)
+
+        for video in self.videos.all():
+            submit_media(video)
+
+        for artifact in self.artifacts.all():
+            submit_media(artifact)
+
+        self.submitted = True
+        self.save()
+
+    def __unicode__(self):
+        name = self.name
+        if not name:
+            name = self.autoname()
+        return u"Batch: %s for %s" % (name, self.user.username)
+
+    class Meta:
+        verbose_name_plural = 'Batches'
+
+
+class ArchiveFile(models.Model):
+    owner = models.ForeignKey(authmodels.User)
+    date_added = models.DateTimeField(_('date added'),
+                                      default=datetime.now, editable=False)
+    filefield = models.FileField(_('filefield'), upload_to=get_media_path,
+                                 storage=mediastorage)
+    batch = models.ForeignKey('Batch', related_name='archives', null=True)
+    mediadir = 'archives'
+
+    def __unicode__(self):
+        return u"Archive: %s" % self.filefield.path
+
+    def delete(self, *args, **kwargs):
+        log.info('deleting %s', self.filefield.path)
+        os.unlink(self.filefield.path)
+        super(ArchiveFile, self).delete(*args, **kwargs)
+
+    def extract(self):
+
+        f, ext = self.filefield.path.rsplit('.',1)
+        ext = ext.lower()
+        files = []
+        tdir = tempfile.mkdtemp()
+        legal = ('gif','jpg','jpeg','png')
+        if self.owner.has_perm('gallery.can_review'):
+            legal += ('avi','mpg','mpeg','m1v','mp2','mpa','mpe','mpv2','asf','mov','qt', 'flv')
+
+        tname = str(tdir)
+        members = []
+        membernames = []
+
+        if ext == 'zip':
+            log.debug('zipfile')
+            log.debug('zipfile: %s', self.filefield.path)
+            z = zipfile.ZipFile(self.filefield.path, 'r')
+            for member in z.infolist():
+                log.debug('checking: %s', member.filename)
+                f, ext = member.filename.rsplit('.',1)
+                ext = ext.lower()
+                if ext in legal and not f.startswith('/'):
+                    log.debug('adding: %s', member.filename)
+                    members.append(member)
+                    membernames.append(os.path.join(tname, member.filename))
+                else:
+                    log.debug('%s.%s not in %s', f, ext, legal)
+
+            z.extractall(tname, members)
+
+        if ext in ('tar','tar.gz','tgz','tbz','tar.bz'):
+            log.debug('tarfile: %s', self.filefield.path)
+            t = tarfile.open(self.filefield.path)
+            for member in t.getmembers():
+                f, ext = member.name.rsplit('.',1)
+                ext = ext.lower()
+                if ext in legal and not f.startswith('/'):
+                    members.append(member)
+                    membernames.append(os.path.join(tname, member.name))
+                else:
+                    log.debug('%s.%s not in %s', f, ext, legal)
+
+            t.extractall(tname, members)
+
+        log.debug('extracted: %s', membernames)
+
+        for fn in membernames:
+            infile = open(fn,'r')
+            files.append(media_from_file(infile, self.batch, self.owner, True))
+            infile.close()
+
+        return files
+
+def media_from_file(infile, batch, user, manual=False):
+    """Creates an instance of correct Media class from an open file"""
+    stream = InputIOStream(infile)
+    parser = hachoir_parser.guessParser(stream)
+    metadata = hachoir_metadata.extractMetadata(parser)
+    model_class = klass_from_metadata(metadata, infile.name)
+
+    if not model_class:
+        # TODO: need to test different errors
+        log.warn('no media found for: %s', infile.name)
+        return None
+
+    else:
+        mediatype = model_class.mediatype()
+        cursor = connection.cursor()
+        cursor.execute("SELECT nextval ('gallery_mediabase_id_seq')")
+        slugid = cursor.fetchone()[0]
+
+        slug = '%s.%d' % (user.username, slugid)
+        args = {'owner': user,
+                'slug': slug,
+                'status': 'uploaded',
+                'textheight' : 50,
+                'batch': batch}
+
+        if not manual:
+            if hasattr(model_class, 'IKOptions'):
+                # we're some type of image object
+                args['image'] = infile
+            else:
+                args['filefield'] = infile
+
+        for dimension in ('width', 'height'):
+            dimvalue = metadata.get(dimension, False)
+            if dimvalue:
+                args[dimension] = dimvalue
+        if mediatype == 'video' and not infile.name.endswith('flv'):
+            args['encode'] = True
+
+        if metadata.has('creation_date'):
+            year = metadata.get('creation_date', None)
+            if year:
+                year = year.year
+                args['year'] = year
+
+        instance = model_class(**args)
+        if manual:
+            fn = os.path.basename(infile.name)
+            fileobj = File(infile)
+            log.debug('manual creation of %s: %s', mediatype, fn)
+            if hasattr(model_class, 'IKOptions'):
+                # we're some type of image object
+                instance.image.save(fn, fileobj)
+            else:
+                instance.filefield.save(fn, fileobj)
+
+        instance.save()
+        log.debug('Saved %s: %s' % (mediatype, instance.get_fname()))
+        return instance
+
+
+def klass_from_metadata(metadata, fname):
+    """Returns the correct Media Class from the metadata"""
+    mime = metadata.get('mime_type', None)
+    if not mime:
+        log.warn('Could not extract metadata for %s', fname)
+        return None
+    filetype = mime.split('/')[0]
+    if not filetype:
+        log.warn('Could not extract determine MIME type for %s', fname)
+        return None
+
+    if filetype == 'image':
+        return Photo
+    elif filetype == 'video':
+        return Video
+    else:
+        return Artifact

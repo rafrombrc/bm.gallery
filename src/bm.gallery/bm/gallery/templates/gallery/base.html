@@ -1,4 +1,4 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+{% load conmodnav %}<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
           "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
   <head>
@@ -12,6 +12,7 @@
 <!--[if IE 7]>
   <link rel="stylesheet" href="/static/css/IE7.css" type="text/css" media="screen">
 <![endif]-->
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.js"></script>
     {% block extra-head %}{% endblock %}
   </head>
 
@@ -39,7 +40,7 @@
 
           <div id="globalnav">
             <span class="globalnavcat">About:&nbsp;&nbsp;<a href="http://www.burningman.com/whatisburningman/">What is Burning Man?</a>&nbsp;::&nbsp;<a href="http://www.burningman.com/art_of_burningman/">Art of Burning Man</a>&nbsp;::&nbsp;<a href="http://www.burningman.com/press/">Press Here</a>&nbsp;::&nbsp;<a href="http://www.burningman.com/news/">News</a>&nbsp;::&nbsp;<a href="http://afterburn.burningman.com/">AfterBurn</a></span><br />
-            <span class="globalnavcat">Community:&nbsp;&nbsp;<a href="http://www.burningman.com/participate/">Participate</a>&nbsp;::&nbsp;<a href="http://www.burningman.com/blackrockcity_yearround/">BRC Year Round</a>&nbsp;::&nbsp;<a href="http://www.burningman.com/environment">Environment</a>&nbsp;::&nbsp;<a href="http://eplaya.burningman.com/">ePlaya</a>&nbsp;::&nbsp;<a href="http://www.burningman.com/calendar/">Calendars</a>&nbsp;::&nbsp;<a href="http://www.burningman.com/galleries/">Galleries</a></span><br />
+            <span class="globalnavcat">Community:&nbsp;&nbsp;<a href="http://www.burningman.com/participate/">Participate</a>&nbsp;::&nbsp;<a href="http://www.burningman.com/blackrockcity_yearround/">BRC Year Round</a>&nbsp;::&nbsp;<a href="http://www.burningman.com/environment">Environment</a>&nbsp;::&nbsp;<a href="http://eplaya.burningman.com/">ePlaya</a>&nbsp;::&nbsp;<a href="http://regionals.burningman.com/">Calendars</a>&nbsp;::&nbsp;<a href="http://www.burningman.com/galleries/">Galleries</a></span><br />
             <span class="globalnavcat">The Event:&nbsp;&nbsp;<a href="http://www.burningman.com/first_timers/">First Timer's Guide</a>&nbsp;::&nbsp;<a href="http://www.burningman.com/preparation/">Preparation</a>&nbsp;::&nbsp;<a href="http://www.burningman.com/on_the_playa/">On The Playa</a>&nbsp;::&nbsp;<a href="http://www.burningman.com/themecamps/">Theme Camps</a>&nbsp;::&nbsp;<a href="http://www.burningman.com/installations/">Art Installations</a></span><br />
           </div> <!-- end globalnav -->
         </div> <!-- end page-header -->
@@ -94,6 +95,7 @@
           </form>
         </div> <!-- end search-bar -->
 
+        {% block con_mod_nav %}{% con_mod_nav %}{% endblock %}
         {% if notifications %}
         <div id="notifications">
           <ul class="notifications">
@@ -105,19 +107,17 @@
         {% endif %}
 
 
+        <div id="well-wrapper">
         <!-- +++++ CONTENT WELL STARTS +++++ -->
         <div id="content-well">
           <!-- +++++ CONTENT AREA STARTS +++++ -->
           <div id="content-area">
-
-            {% load conmodnav %}
-            {% block con_mod_nav %}{% con_mod_nav %}{% endblock %}
             {% block content %}{% endblock %}
-
             <!-- +++++ CONTENT AREA ENDS +++++ -->
           </div> <!-- end content-area -->
           <!-- +++++ CONTENT WELL ENDS +++++ -->
         </div> <!-- end content-well -->
+        </div>
 
         <div id="footer">
           <p>&copy; All images are copyright in their respective year, by both the photographer and Burning Man</p>

@@ -13,7 +13,7 @@
 {% block con_mod_nav %}{% con_mod_nav resource %}{% endblock %}
 {% block content %}
 
-<!-- +++++ IN-PAGE NAV AND PAGE HEADER STARTS +++++ -->	
+<!-- +++++ IN-PAGE NAV AND PAGE HEADER STARTS +++++ -->
 <div id="page-title-nav">
   {% if show_set_context %}
   <div class="thumbnail-nav">
@@ -50,7 +50,7 @@
     </div>
   </div>
 </div>
-<!-- +++++ IN-PAGE NAV AND PAGE HEADER ENDS +++++ -->	
+<!-- +++++ IN-PAGE NAV AND PAGE HEADER ENDS +++++ -->
 {% endif %}
 
 {% block media_content %}
@@ -58,7 +58,8 @@
 <div id="single-item">
   <div id="image_box">
     <!-- +++++ MEDIA ITEM DISPLAY  +++++ -->
-    {% if nexturl %}<a href="{% qsify nexturl %}#pastheader">{% endif %}{% block media_display %}{% endblock %}{% if nexturl %}</a>{% endif %}
+    {# Removed per Mantis #329 {% if nexturl %}<a href="{% qsify nexturl %}#pastheader">{% endif %}{% block media_display %}{% endblock %}{% if nexturl %}</a>{% endif %} #}
+    {% block media_display %}{% endblock %}
     <!-- +++++ END MEDIA ITEM DISPLAY  +++++ -->
   </div>
 
