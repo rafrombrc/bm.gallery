@@ -90,10 +90,10 @@
             {% endif %}
 
             <input class="searchButton" type="submit" value="GO" />
+            <a href="{% url bm.gallery.views.contributors %}"><span class="cont-link">Browse Contributors</span></a>
           </form>
 
         </div> <!-- end search-bar -->
-        <a href="{% url bm.gallery.views.contributors %}"><span class="cont-link">Browse Contributors</span></a>
 
         {% if notifications %}
         <div id="notifications">
